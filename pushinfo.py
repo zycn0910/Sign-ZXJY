@@ -80,3 +80,4 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         return f"成功发送邮件到：{Receiver}"
     except Exception as e:
         return f"邮件发送失败！\n错误描述：{e}"
+
