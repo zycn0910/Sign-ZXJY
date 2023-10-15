@@ -153,3 +153,4 @@ if __name__ == '__main__':
     write_file(filename, enabled, day, name, phone, password, device, randomLocation, address, pushmode, Ding_secret, Ding_token,
                PushPlus_token, Server_Turbo_token,
                email_username, email_password, email_address, email_port, email_receiver, check)
+

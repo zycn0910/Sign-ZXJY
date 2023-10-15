@@ -169,3 +169,4 @@ if __name__ == '__main__':
         else:
             write_file(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
                        device=device, modify_coordinates=modify_coordinates, address=address, pushmode=pushmode)
+
