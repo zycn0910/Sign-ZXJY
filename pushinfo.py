@@ -61,15 +61,16 @@ def ServerTurbo(token, title, content):
 
 
 def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, content):
+    a = Send, Password, Server_Address, Smtp_Port
     if Send is None or Send == '@':
         return f"{Send}，邮箱格式不正确"
     if config.email_username or config.email_password or config.email_address or config.email_port == "":
-        Send, Password, Server_Address, Smtp_Port = Send, Password, Server_Address, Smtp_Port
+        pass
     else:
         Send, Password, Server_Address, Smtp_Port = config.email_username, config.email_password, config.email_address, config.email_port
     try:
-        smtp = smtplib.SMTP()
-        smtp.connect(host=Server_Address, port=Smtp_Port)
+        smtp = smtplib.SMTP_SSL(host=Server_Address, port=Smtp_Port)
+        # smtp.connect(host=Server_Address, port=Smtp_Port)
         smtp.login(user=Send, password=Password)
         message = MIMEText(content, 'plain', 'utf-8')
         message['Subject'] = title
@@ -79,5 +80,11 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         smtp.quit()
         return f"成功发送邮件到：{Receiver}"
     except Exception as e:
-        return f"邮件发送失败！\n错误描述：{e}"
+        return f"邮件发送失败！\n错误描述：{a}"
 
+
+if __name__ == "__main__":
+    title = "11"
+    content = "222"
+    re = "zhang1041@icloud.com"
+    Send_Email(config.email_username, config.email_password, config.email_address, config.email_port, re, title, content)
