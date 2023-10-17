@@ -7,7 +7,7 @@ import pushinfo
 class MessagePush:
     @staticmethod
     def pushMessage(addinfo=True, pushmode=None, title="默认标题", content="默认内容", pushdata=None):
-        if addinfo == False:
+        if addinfo == True:
             if pushmode == "1":
                 feedback = pushinfo.DingTalkRebot(DingSecret=pushdata['Ding']['Secret'],
                                                   DingToken=pushdata['Ding']['Token'], title=title,
