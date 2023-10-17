@@ -84,7 +84,7 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
 
 
 if __name__ == "__main__":
-    title = "11"
-    content = "222"
-    re = "zhang1041@icloud.com"
+    title = ""
+    content = ""
+    re = ""
     Send_Email(config.email_username, config.email_password, config.email_address, config.email_port, re, title, content)
