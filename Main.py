@@ -144,7 +144,7 @@ def login_and_sign_in(user, endday):
     if not ADDITIONAL_TEXT:
         title = "职教家园打卡失败！"
         content = f"{user['name']}，获取 Token 失败，无法继续操作" + f"\n剩余：{endday}天"
-        push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
+        push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
         feedback = content
         return login_feedback, feedback, push_feedback
@@ -163,38 +163,38 @@ def login_and_sign_in(user, endday):
                 if sign_in_result['code'] == 1001:
                     title = "职教家园打卡成功！"
                     content = f"{user['name']}，打卡成功:" + sign_in_result['msg'] + f"\n剩余：{endday}天"
-                    push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"],
+                    push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content, )
                     feedback = content
                     return login_feedback, feedback, push_feedback
                 else:
                     content = f"{user['name']}，打卡失败，错误信息:" + sign_in_result.get('msg',
                                                                                         '未知错误') + f"\n剩余：{endday}天"
-                    push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"],
+                    push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
                     feedback = content
                     return login_feedback, feedback, push_feedback
             except json.JSONDecodeError:
                 content = f"{user['name']}，处理打卡响应时发生 JSON 解析错误" + f"\n剩余：{endday}天"
-                push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"],
+                push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
                 feedback = content
                 return login_feedback, feedback, push_feedback
         else:
             content = f"{user['name']}，登录失败，错误信息:" + login_result.get('msg', '未知错误') + f"\n剩余：{endday}天"
-            push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
+            push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                     title=title, content=content)
             feedback = content
             return login_feedback, feedback, push_feedback
     except json.JSONDecodeError:
         content = f"{user['name']}，处理登录响应时发生 JSON 解析错误" + f"\n剩余：{endday}天"
-        push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
+        push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
         feedback = content
         return login_feedback, feedback, push_feedback
     except KeyError:
         content = f"{user['name']}，处理登录响应时发生关键字错误" + f"\n剩余：{endday}天"
-        push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
+        push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
         feedback = content
         return login_feedback, feedback, push_feedback
