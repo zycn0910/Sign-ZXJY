@@ -37,7 +37,7 @@ class MessagePush:
                 feedback = title + "\n" + content
                 return feedback
         else:
-            if datetime.datetime.now().strftime("%H") == config.time:
+            if config.time == datetime.datetime.now().strftime("%H") or config.time == "":
                 if pushmode == "1":
                     feedback = pushinfo.DingTalkRebot(DingSecret=pushdata['Ding']['Secret'],
                                                       DingToken=pushdata['Ding']['Token'], title=title,
