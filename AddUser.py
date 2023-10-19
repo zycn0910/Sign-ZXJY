@@ -114,6 +114,8 @@ if __name__ == '__main__':
         phone = input("输入账号：")
         if pattern.search(phone):
             break
+        else:
+            print(f"\033[31m手机号不正确！\033[0m")
     # 密码
     while True:
         password = input("输入密码：")
@@ -135,25 +137,27 @@ if __name__ == '__main__':
     # 打卡地址
     address = input("输入打卡地址：")
     # 推送方式
-    pushmode = input("输入信息推送方式：")
-    now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    pushmode = input("输入信息推送方式（默认控制台打印）：")
+    if "1" and "2" and "3" and "4" not in pushmode:
+        pushmode = None
+        print(f"\033[33m输入无效，已设置默认！\033[0m")
     if pushmode == "1":
-        Ding_secret = input("输入DingDing机器人Secret：")
-        Ding_token = input("输入DingDing机器人Token：")
+        Ding_secret = input("输入DingDing机器人Secret（留空则全局推送信息生效）：")
+        Ding_token = input("输入DingDing机器人Token（留空则全局推送信息生效）：")
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
                                  device=device, modify_coordinates=modify_coordinates, address=address,
                                  pushmode=pushmode,
                                  Ding_secret=Ding_secret, Ding_token=Ding_token)
         pushmode = "钉钉WebHook机器人推送"
     elif pushmode == "2":
-        PushPlus_token = input("输入PushPlus的Token：")
+        PushPlus_token = input("输入PushPlus的Token（留空则全局推送信息生效）：")
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
                                  device=device, modify_coordinates=modify_coordinates, address=address,
                                  pushmode=pushmode,
                                  PushPlus_token=PushPlus_token)
         pushmode = "Pushplus推送"
     elif pushmode == "3":
-        Server_Turbo_token = input("输入Server酱Token：")
+        Server_Turbo_token = input("输入Server酱Token（留空则全局推送信息生效）：")
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
                                  device=device, modify_coordinates=modify_coordinates, address=address,
                                  pushmode=pushmode,
@@ -161,11 +165,17 @@ if __name__ == '__main__':
         pushmode = "Server酱"
     elif pushmode == "4":
         if config.email_username or config.email_password or config.email_address or config.email_port == "":
-            email_username = input("输入邮箱服务用户名：")
-            email_password = input("输入邮箱服务密码：")
-            email_address = input("输入邮箱服务地址：")
-            email_port = input("输入邮箱服务端口：")
-            email_receiver = input("收入接收邮件地址：")
+            email_username = input("输入邮箱服务用户名（留空则全局推送信息生效）：")
+            email_password = input("输入邮箱服务密码（留空则全局推送信息生效）：")
+            email_address = input("输入邮箱服务地址（留空则全局推送信息生效）：")
+            email_port = input("输入邮箱服务端口（留空则全局推送信息生效）：")
+            while True:
+                email_receiver = input("收入接收邮件地址（设置邮件推送时，此项必填）：")
+                if "@" not in email_receiver:
+                    pass
+                else:
+                    break
+
             userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone,
                                      password=password,
                                      device=device, modify_coordinates=modify_coordinates, address=address,
@@ -187,6 +197,7 @@ if __name__ == '__main__':
                                  device=device, modify_coordinates=modify_coordinates, address=address,
                                  pushmode=pushmode)
         pushmode = "不推送"
+    now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     userForm = f'''姓名：\033[32m{userdata[0][0]['name']}\033[0m\n打卡时间：\033[32m{(datetime.datetime.strptime(userdata[0][0]['enddate'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(now_localtime, '%Y-%m-%d %H:%M:%S')).days}\033[0m天\n手机型号：\033[32m{userdata[0][0]['deviceId']}\033[0m\n打卡地址：\033[32m{userdata[0][0]['address']}\033[0m\n推送方式：\033[32m{pushmode}\033[0m\n推送反馈：\033[33m{userdata[1]}\033[0m'''
     print(userForm)
     if "成功" in userdata[2]:

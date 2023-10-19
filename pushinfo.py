@@ -24,6 +24,7 @@ def DingTalkRebot(DingSecret, DingToken, title, content):
     ding_token = DingToken
     head = {"content-type": "application/json"}
     message = {"msgtype": "text", "text": {"content": title + f"\n{content}"}}
+    print(rebot_address + ding_token + "&timestamp=" + timestamp + "&sign=" + sign)
     post = requests.post(rebot_address + ding_token + "&timestamp=" + timestamp + "&sign=" + sign, json=message,
                          headers=head)
     if post.json()["errcode"] == 0:
