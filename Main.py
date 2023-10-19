@@ -54,10 +54,10 @@ def calculate_hmac_sha256(secret_key, message):
 
 
 def generate_headers(sign, phone_phonetype):
-    if "IPHONE" and "iPhone" and "iphone" in phone_phonetype:
-        os = "android"
-    else:
+    if "IPHONE" or "iPhone" or "iphone" in phone_phonetype:
         os = "ios"
+    else:
+        os = "android"
     return {
         'os': os,
         'phone': phone_phonetype,
