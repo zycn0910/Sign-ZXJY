@@ -1,4 +1,6 @@
 '''全局推送, 设置后用户单独推送数据将失效'''
+import random
+
 pushmode = ""
 # 1 钉钉机器人
 DingDingSecret = ""
@@ -17,7 +19,9 @@ email_port = ""
 留空为无论何时都推送
 '''
 time = ""
-
+'''随机时间范围10——30秒'''
+range_time = random.randint(10, 30)
 '''腾讯地图api密钥，获取地址经纬度需要'''
 # 第三方公开，不保证稳定性
 api_token = "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
+
