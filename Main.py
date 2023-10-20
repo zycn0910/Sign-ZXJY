@@ -3,12 +3,14 @@ import hashlib
 import hmac
 import json
 import random
+import re
 import sys
 import time
 
 import requests
 from tqdm import tqdm
 
+import config
 from utils import MessagePush
 
 SECRET_KEY = 'Anything_2023'
@@ -56,16 +58,41 @@ def calculate_hmac_sha256(secret_key, message):
 def generate_headers(sign, phone_phonetype):
     if "IPHONE" or "iPhone" or "iphone" in phone_phonetype:
         os = "ios"
+        Accept = "*/*"
+        Version = "".join(re.findall('new__latest__version">(.*?)</p>',
+                                     requests.get(
+                                         'https://apps.apple.com/us/app/%E8%81%8C%E6%A0%A1%E5%AE%B6%E5%9B%AD/id1606842290').text,
+                                     re.S)).replace('Version ', '')
+        Accept_Encoding = 'gzip, deflate, br'
+        Accept_Language = 'zh-Hans-CN;q=1'
+        Content_Type = 'application/json'
+        Content_Length = "195"
+        User_Agent = "Internship/1.3.8 (iPhone; iOS 16.6; Scale/3.00)"
+        Connection = "keep-alive"
+        Sign = sign
     else:
         os = "android"
+        Accept = "*/*"
+        Version = "57"
+        Accept_Encoding = 'gzip'
+        Accept_Language = 'zh-Hans-CN;q=1'
+        Content_Type = 'application/json; charset=UTF-8'
+        Content_Length = "195"
+        User_Agent = "okhttp/3.14.9"
+        Connection = "keep-alive"
+        Sign = sign
     return {
-        'os': os,
         'phone': phone_phonetype,
-        'appversion': '56',
-        'sign': sign,
-        'content-type': 'application/json;charset=UTF-8',
-        'accept-encoding': 'gzip',
-        'user-agent': 'okhttp/3.14.9'
+        'Accept': Accept,
+        'appversion': Version,
+        'os': os,
+        'Accept-Encoding': Accept_Encoding,
+        'Accept-Language': Accept_Language,
+        'Content-Type': Content_Type,
+        'Content-Length': Content_Length,
+        'User-Agent': User_Agent,
+        'Connection': Connection,
+        'Sign': Sign
     }
 
 
@@ -202,13 +229,14 @@ def login_and_sign_in(user, endday):
 
 if __name__ == "__main__":
     print("项目免费开源，详情见：https://github.com/zycn0910/Sign-ZXJY")
-    waittime = 2
     users_file_path = "all-users.json"
     users = load_users_from_json(users_file_path)
     with tqdm(users, desc=f"打卡", total=len(users), unit="人", colour="#00FF00", ncols=100, leave=True, position=0,
               file=sys.stdout) as bar:
         for user in bar:
-            time.sleep(waittime)
+            waittime = config.range_time
+            tqdm.write(f"本次随机 {waittime} s")
+            time.sleep(float(waittime))
             now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             TDOA = datetime.datetime.strptime(user['enddate'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(
                 now_localtime, '%Y-%m-%d %H:%M:%S')
@@ -218,4 +246,3 @@ if __name__ == "__main__":
                 i = i + 1
             tqdm.write("====================")
         bar.close()
-
