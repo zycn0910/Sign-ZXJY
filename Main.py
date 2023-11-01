@@ -11,6 +11,7 @@ from tqdm import tqdm
 import config
 from utils import MessagePush
 
+
 ADDITIONAL_TEXT = None
 DTYPE = 6
 
