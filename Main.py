@@ -11,7 +11,6 @@ from tqdm import tqdm
 import config
 from utils import MessagePush
 
-SECRET_KEY = 'Anything_2023'
 ADDITIONAL_TEXT = None
 DTYPE = 6
 
@@ -104,7 +103,7 @@ def send_request(url, method, headers, data):
     return response.text
 
 
-def calculate_sign(data, additional_text, secret_key=SECRET_KEY):
+def calculate_sign(data, additional_text, secret_key='Anything_2023'):
     json_data = json.dumps(data)
     combined_text = json_data + additional_text
     return calculate_hmac_sha256(secret_key, combined_text)
