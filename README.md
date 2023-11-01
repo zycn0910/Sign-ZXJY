@@ -1,7 +1,5 @@
 # ZXJY打卡
 
-> 写在前面：鸣谢[rialll](https://github.com/rialll)。
-> 
 ><font color="red">项目被代挂狗举报，随时删除</font>
 
 ### 10.20更新（可能防作弊）日志
