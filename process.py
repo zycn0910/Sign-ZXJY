@@ -154,6 +154,7 @@ def login_and_sign_in(user, endday):
     try:
         login_result = json.loads(login_response)
         if login_result['code'] == 1001:
+            login_feedback = "登录成功！"
             uid = login_result['data']['uid']
             ADDITIONAL_TEXT = login_result['data']['UserToken']
             if not ADDITIONAL_TEXT:
