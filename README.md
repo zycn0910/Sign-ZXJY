@@ -2,6 +2,8 @@
 
 ## 重要
 
+>鸣谢[rialll](https://github.com/fuckZXJY)，您使用本项目之前请去star。
+
 >本项目基于[GPL3.0开源协议](/GNU%20General%20Public%20License%20v3.0.html)。
 > 
 > 项目内仅有一处版权信息，详情在`main.py`204行。
@@ -12,6 +14,9 @@
 
 
 ><font color="red">项目被代挂狗举报，随时删除</font>
+
+### 11.4更新日志
+1、使用[rialll](https://github.com/fuckZXJY)算法。
 
 ### 11.1更新日志
 1、APP更新验证版本，本脚本同步更新。
