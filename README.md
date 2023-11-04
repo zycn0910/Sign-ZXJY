@@ -52,7 +52,7 @@
 
 ### 青龙面板
 
-1、配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意。
+1、面板配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意。
 
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
