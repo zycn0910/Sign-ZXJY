@@ -42,11 +42,31 @@
 
 平台推荐：7x24小时的Linux系统、Windows系统、青龙面板、云函数、Github Actions等。
 
+### 源码运行
+
 安装所需依赖```pip install  -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
 
 添加用户运行`python AddUser.py`/`python AddUser-noinput.py`。
 
-打卡主程序`python Main.py`。
+打卡主程序运行`python Main.py`。
+
+### 青龙面板
+
+1、新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意。
+
+2、安装python依赖```
+certifi==2023.7.22
+charset-normalizer==3.3.0
+colorama==0.4.6
+idna==3.4
+requests==2.31.0
+tqdm==4.66.1
+urllib3==2.0.7
+```
+
+3、删除拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个。
+
+4、测试运行。
 
 ## 推送模块说明
 
