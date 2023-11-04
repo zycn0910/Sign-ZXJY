@@ -54,7 +54,8 @@
 
 1、新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意。
 
-2、安装python依赖```
+2、安装python依赖
+```
 certifi==2023.7.22
 charset-normalizer==3.3.0
 colorama==0.4.6
