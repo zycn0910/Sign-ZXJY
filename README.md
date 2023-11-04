@@ -2,7 +2,7 @@
 
 ## 重要
 
->鸣谢[rialll](https://github.com/fuckZXJY)，您使用本项目之前请去star。
+>鸣谢[rialll](https://github.com/rialll/fuckZXJY)，您使用本项目之前请去star。
 
 >本项目基于[GPL3.0开源协议](/GNU%20General%20Public%20License%20v3.0.html)。
 > 
