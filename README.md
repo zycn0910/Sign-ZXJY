@@ -15,7 +15,7 @@
 
 ><font color="red">项目被代挂狗举报，随时删除</font>
 
-### 11.6更新日志
+### 11.5更新日志
 1、修复打卡地址变成手机号。
 
 2、添加实习报告提交功能（默认关闭，`config.py`里开启），开启前请修改`day_report.json`、`week_report.json`、`month_report.json`内的数据内容。开启后每次提交对应文件内的随机一条数据。
