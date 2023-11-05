@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import hmac
 import json
@@ -12,6 +13,7 @@ from utils import MessagePush
 
 def random_Time(time):
     return random.randint(int(time[0]), int(time[1]))
+
 
 def get_Apitoken():
     url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
@@ -49,7 +51,9 @@ def generate_headers(sign, phonetype, token):
         os = "ios"
         Accept = "*/*"
         Version = "".join(re.findall('new__latest__version">(.*?)</p>',
-                                     requests.get('https://apps.apple.com/us/app/%E8%81%8C%E6%A0%A1%E5%AE%B6%E5%9B%AD/id1606842290').text, re.S)).replace('Version ', '')
+                                     requests.get(
+                                         'https://apps.apple.com/us/app/%E8%81%8C%E6%A0%A1%E5%AE%B6%E5%9B%AD/id1606842290').text,
+                                     re.S)).replace('Version ', '')
         Accept_Encoding = 'gzip, deflate, br'
         Accept_Language = 'zh-Hans-CN;q=1'
         Content_Type = 'application/json'
@@ -96,7 +100,7 @@ def calculate_sign(data, token):
     return calculate_hmac_sha256('Anything_2023', combined_text)
 
 
-def login_request(phone_number, password, dToken, additional_text):
+def login_request(phone_type, phone_number, password, dToken, additional_text):
     data = {
         "phone": phone_number,
         "password": hashlib.md5(password.encode()).hexdigest(),
@@ -104,7 +108,7 @@ def login_request(phone_number, password, dToken, additional_text):
         "dToken": dToken
     }
     sign = calculate_sign(data, additional_text)
-    headers = generate_headers(sign, phone_number, additional_text)
+    headers = generate_headers(sign, phone_type, additional_text)
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
     response_text = send_request(url, 'POST', headers, data)
     return response_text
@@ -153,12 +157,15 @@ def login_and_sign_in(user, endday):
     login_token = get_Apitoken()
     if not login_token:
         print("获取 Token 失败，无法继续操作")
-    login_response = login_request(user['phone'], user['password'], user['dToken'], login_token)
+    login_response = login_request(user['deviceId'], user['phone'], user['password'], user['dToken'], login_token)
     try:
         login_result = json.loads(login_response)
         if login_result['code'] == 1001:
             login_feedback = "登录成功！"
+            global User_UID
             uid = login_result['data']['uid']
+            User_UID = uid
+            global ADDITIONAL_TEXT
             ADDITIONAL_TEXT = login_result['data']['UserToken']
             if not ADDITIONAL_TEXT:
                 print("获取 Token 失败，无法继续操作")
@@ -175,7 +182,8 @@ def login_and_sign_in(user, endday):
                     feedback = content
                     return login_feedback, feedback, push_feedback
                 else:
-                    content = f"{user['name']}，打卡失败，错误信息:" + sign_in_result.get('msg', '未知错误') + f"\n剩余：{endday}天"
+                    content = f"{user['name']}，打卡失败，错误信息：" + sign_in_result.get('msg',
+                                                                                        '未知错误') + f"\n剩余：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
                     feedback = content
@@ -187,7 +195,7 @@ def login_and_sign_in(user, endday):
                 feedback = content
                 return login_feedback, feedback, push_feedback
         else:
-            content = f"{user['name']}，登录失败，错误信息:" + login_result.get('msg', '未知错误') + f"\n剩余：{endday}天"
+            content = f"{user['name']}，登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余：{endday}天"
             push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                     title=title, content=content)
             feedback = content
@@ -204,3 +212,64 @@ def login_and_sign_in(user, endday):
                                                 title=title, content=content)
         feedback = content
         return login_feedback, feedback, push_feedback
+
+
+def day_Report(time, user, summary, record, project):
+    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    data = {
+        "address": user['address'],
+        "uid": User_UID,
+        "summary": summary,
+        "record": record,
+        "starttime": time.strftime("%Y-%m-%d"),
+        "dtype": 1,
+        "project": project
+    }
+    sign = calculate_sign(data, ADDITIONAL_TEXT)
+    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
+    info = send_request(url, "POST", herder, data)
+    return json.loads(info)
+
+
+def week_Report(time, user, summary, record, project):
+    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    data = {
+        "address": user['address'],
+        "uid": User_UID,
+        "summary": summary,
+        "record": record,
+        "starttime": (time + datetime.timedelta(days=-7)).strftime('%Y-%m-%d'),
+        "dtype": 2,
+        "project": project,
+        "endtime": time.strftime("%Y-%m-%d"),
+        "stype": 2
+    }
+    sign = calculate_sign(data, ADDITIONAL_TEXT)
+    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
+    info = send_request(url, "POST", herder, data)
+    return info
+
+
+def month_Report(time, user, summary, record, project):
+    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    data = {
+        "address": user['address'],
+        "uid": User_UID,
+        "summary": summary,
+        "record": record,
+        "starttime": (time + datetime.timedelta(days=-30)).strftime('%Y-%m-%d'),
+        "dtype": 2,
+        "project": project,
+        "endtime": time.strftime("%Y-%m-%d"),
+        "stype": 3
+    }
+    sign = calculate_sign(data, ADDITIONAL_TEXT)
+    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
+    info = send_request(url, "POST", herder, data)
+    return info
+
+
+def load_report_data_from_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    return data
