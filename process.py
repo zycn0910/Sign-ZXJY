@@ -159,7 +159,7 @@ def login_and_sign_in(user, endday):
             ADDITIONAL_TEXT = login_result['data']['UserToken']
             if not ADDITIONAL_TEXT:
                 print("获取 Token 失败，无法继续操作")
-            sign_in_response = sign_in_request(uid, user['address'], user['phonetype'], 0, user['longitude'],
+            sign_in_response = sign_in_request(uid, user['address'], user['deviceId'], 0, user['longitude'],
                                                user['latitude'], ADDITIONAL_TEXT,
                                                user['modify_coordinates'])
             try:
