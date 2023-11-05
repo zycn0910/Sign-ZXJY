@@ -70,7 +70,7 @@ tqdm==4.66.1
 urllib3==2.0.7
 ```
 
-3、删除拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。
+3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。
 
 4、测试运行Main。
 
