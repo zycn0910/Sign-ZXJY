@@ -17,10 +17,17 @@ email_port = ""
 早上7点运行时推送，其余时间运行不推送填07
 留空为无论何时都推送
 '''
-time = "07"
+time = ""
 '''随机时间范围10——30秒'''
 range_time = (10, 30)
 '''腾讯地图api密钥，获取地址经纬度需要'''
 # 第三方公开，不保证稳定性
 api_token = "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
 
+'''是否开启日报、周报、月报'''
+# 是否开启日报，每日提交
+day_report = True
+# 是否开启周报，每周日提交
+week_report = True
+# 是否开启月报，每月30号提交
+month_report = True

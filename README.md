@@ -6,7 +6,7 @@
 
 >本项目基于[GPL3.0开源协议](/GNU%20General%20Public%20License%20v3.0.html)。
 > 
-> 项目内仅有一处版权信息，详情在`main.py`204行。
+> 项目内仅有一处版权信息，详情在`main.py`77行。
 > 
 > 仅供学习使用，请于下载后24小时内删除项目所有内容。
 > 
@@ -15,8 +15,10 @@
 
 ><font color="red">项目被代挂狗举报，随时删除</font>
 
-### 11.5更新日志
+### 11.6更新日志
 1、修复打卡地址变成手机号。
+
+2、添加实习报告提交功能（默认关闭，`config.py`里开启），开启前请修改`day_report.json`、`week_report.json`、`month_report.json`内的数据内容。开启后每次提交对应文件内的随机一条数据。
 
 ### 11.4更新日志
 1、使用[rialll](https://github.com/fuckZXJY)算法。
