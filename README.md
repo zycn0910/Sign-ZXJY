@@ -57,7 +57,9 @@
 
 ### 青龙面板
 
-1、面板配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意，然后运行一次，手动添加.json结尾的文件。
+1、面板配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意，运行一次。
+
+2、在脚本管理zycn0910_Sign-ZXJY文件夹里手动添加`day_report.json`、`week_report.json`、`month_report.json`三个json文件。
 
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
@@ -77,8 +79,6 @@ urllib3==2.0.7
 ## 推送模块说明
 
 >详情可见项目：[长目飞耳](https://github.com/zycn0910/Message-Push)。
-
-
 
 ## user.json结构说明
 
