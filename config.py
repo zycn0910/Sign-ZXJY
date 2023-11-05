@@ -26,8 +26,8 @@ api_token = "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
 
 '''是否开启日报、周报、月报'''
 # 是否开启日报，每日提交
-day_report = True
+day_report = False
 # 是否开启周报，每周日提交
-week_report = True
+week_report = False
 # 是否开启月报，每月30号提交
-month_report = True
+month_report = False
