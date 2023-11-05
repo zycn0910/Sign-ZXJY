@@ -14,7 +14,7 @@ if __name__ == "__main__":
     with tqdm(users, desc=f"打卡", total=len(users), unit="人", colour="#00FF00", ncols=100, leave=True, position=0,
               file=sys.stdout) as bar:
         for user in bar:
-            waittime = config.range_time
+            waittime = process.random_Time(config.range_time)
             tqdm.write(f"本次随机 {waittime} s")
             time.sleep(float(waittime))
             now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

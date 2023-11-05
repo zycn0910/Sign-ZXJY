@@ -10,6 +10,9 @@ import requests
 from utils import MessagePush
 
 
+def random_Time(time):
+    return random.randint(int(time[0]), int(time[1]))
+
 def get_Apitoken():
     url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
     headers = {
