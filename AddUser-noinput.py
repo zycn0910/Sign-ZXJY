@@ -98,19 +98,19 @@ if __name__ == '__main__':
     # 是否开启打卡
     enabled = True
     # 打卡天数
-    day = "12"
+    day = ""
     # 备注名字
-    name = "王"
+    name = ""
     # 手机号/职教家园账号
-    phone = "18336451376"
+    phone = ""
     # 密码
-    password = "20020926Wym."
+    password = ""
     # 手机型号
     device = ""
     # 随机定位（经纬度最后一位随机）
     modify_coordinates = True
     # 打卡地址
-    address = "河南郑州"
+    address = ""
     # 推送方式
     pushmode = ""
     # 推送方式为1时生效
