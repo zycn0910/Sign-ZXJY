@@ -6,7 +6,6 @@ import random
 import re
 import time
 import requests
-from tqdm import tqdm
 
 import config
 from utils import MessagePush
