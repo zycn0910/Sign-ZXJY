@@ -1,7 +1,6 @@
-# <p align="center">ZXJY打卡</p>
+<h1 align="center">ZXJY打卡</h1>
 
 <p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/Licenses-GPL3.0-brightgreen"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Language-Python-brightgreen"></a>    <a href="https://github.com/rialll/fuckZXJY"><img src="https://img.shields.io/badge/Thank-rialll-red"></a></p>
-
 
 ## 重要
 <font color="red">项目被代挂狗举报，随时删除</font>
