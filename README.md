@@ -1,21 +1,21 @@
-# ZXJY打卡
+# <p align="center">ZXJY打卡</p>
+
+<p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/Licenses-GPL3.0-brightgreen"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Language-Python-brightgreen"></a>    <a href="https://github.com/rialll/fuckZXJY"><img src="https://img.shields.io/badge/Thank-rialll-red"></a></p>
+
 
 ## 重要
-
+<font color="red">项目被代挂狗举报，随时删除</font>
 >鸣谢[rialll](https://github.com/rialll/fuckZXJY)，您使用本项目之前请去star。
-
->本项目基于[GPL3.0开源协议](/GNU%20General%20Public%20License%20v3.0.html)。
-
-> 项目内仅有一处版权信息，详情在`main.py`77行。
-
+> 
+>本项目基于[GPL3.0开源协议](https://www.gnu.org/licenses/gpl-3.0.zh-cn.html)。
+> 
+> 项目内仅有一处版权信息，详情在`main.py`53行。
+> 
 > 仅供学习使用，请于下载后24小时内删除项目所有内容。
-
+> 
 > 我们不鼓励、不赞成、不支持任何人，使用任何违规方式完成实习和打卡任务。同时，鉴于项目的特殊性，开发者可能在任何时间停止更新或删除项目。
-
+> 
 > 您所使用本项目但不仅限于本项目所造成的任何后果均由您本人承担，与项目作者无关，您使用即代表您同意！
-
-
-><font color="red">项目被代挂狗举报，随时删除</font>
 
 ### 11.5更新日志
 1、修复打卡地址变成手机号。
