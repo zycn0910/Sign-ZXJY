@@ -24,7 +24,6 @@ def DingTalkRebot(DingSecret, DingToken, title, content):
     ding_token = DingToken
     head = {"content-type": "application/json"}
     message = {"msgtype": "text", "text": {"content": title + f"\n{content}"}}
-    print(rebot_address + ding_token + "&timestamp=" + timestamp + "&sign=" + sign)
     post = requests.post(rebot_address + ding_token + "&timestamp=" + timestamp + "&sign=" + sign, json=message,
                          headers=head)
     if post.json()["errcode"] == 0:
@@ -62,7 +61,6 @@ def ServerTurbo(token, title, content):
 
 
 def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, content):
-    a = Send, Password, Server_Address, Smtp_Port
     if Send is None or Send == '@':
         return f"{Send}，邮箱格式不正确"
     if config.email_username or config.email_password or config.email_address or config.email_port == "":
@@ -81,7 +79,7 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         smtp.quit()
         return f"成功发送邮件到：{Receiver}"
     except Exception as e:
-        return f"邮件发送失败！\n错误描述：{a}"
+        return f"邮件发送失败！\n错误描述：{e}"
 
 
 if __name__ == "__main__":

@@ -5,9 +5,10 @@ import json
 import random
 import re
 import time
-
 import requests
+from tqdm import tqdm
 
+import config
 from utils import MessagePush
 
 
@@ -137,34 +138,36 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     return response_text
 
 
+def get_user_uid(user):
+    login_token = get_Apitoken()
+    if not login_token:
+        print("获取 Token 失败，无法继续操作")
+    login_data = login_request(user['deviceId'], user['phone'], user['password'], user['dToken'], login_token)
+    return login_data
+
+
 def login_and_sign_in(user, endday):
     title = "职教家园打卡失败！"
     login_feedback = "登录失败！"
     push_feedback = "推送无效！"
     # 登录
     if not user['enabled']:
-        feedback = f"{user['name']} 未启用打卡，即将跳过！"
-        return login_feedback, feedback, push_feedback
+        content = f"未启用打卡，即将跳过！"
+        return login_feedback, content, push_feedback
     if endday >= 0:
         pass
     else:
         title = "职教家园打卡通知"
-        content = f"{user['name']}，您已到期！"
+        content = f"您已到期！"
         push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        feedback = content
-        return login_feedback, feedback, push_feedback
-    login_token = get_Apitoken()
-    if not login_token:
-        print("获取 Token 失败，无法继续操作")
-    login_response = login_request(user['deviceId'], user['phone'], user['password'], user['dToken'], login_token)
+        return login_feedback, content, push_feedback
+    login_data = get_user_uid(user)
     try:
-        login_result = json.loads(login_response)
+        login_result = json.loads(login_data)
         if login_result['code'] == 1001:
-            login_feedback = "登录成功！"
-            global User_UID
+            login_feedback = f"{user['name']}登录成功！"
             uid = login_result['data']['uid']
-            User_UID = uid
             global ADDITIONAL_TEXT
             ADDITIONAL_TEXT = login_result['data']['UserToken']
             if not ADDITIONAL_TEXT:
@@ -176,66 +179,63 @@ def login_and_sign_in(user, endday):
                 sign_in_result = json.loads(sign_in_response)
                 if sign_in_result['code'] == 1001:
                     title = "职教家园打卡成功！"
-                    content = f"{user['name']}，打卡成功:" + sign_in_result['msg'] + f"\n剩余：{endday}天"
+                    content = f"打卡成功，提示信息：" + sign_in_result['msg']
+                    if config.day_report or config.week_report or config.month_report:
+                        content = content + f"\n实习报告提交：{report_handler(user)}" + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content, )
-                    feedback = content
-                    return login_feedback, feedback, push_feedback
+                    return login_feedback, content, push_feedback
                 else:
-                    content = f"{user['name']}，打卡失败，错误信息：" + sign_in_result.get('msg',
-                                                                                        '未知错误') + f"\n剩余：{endday}天"
+                    content = f"打卡失败，错误信息：" + sign_in_result.get('msg',
+                                                                                        '未知错误') + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
-                    feedback = content
-                    return login_feedback, feedback, push_feedback
+                    return login_feedback, content, push_feedback
             except json.JSONDecodeError:
-                content = f"{user['name']}，处理打卡响应时发生 JSON 解析错误" + f"\n剩余：{endday}天"
+                content = f"处理打卡响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
                 push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
-                feedback = content
-                return login_feedback, feedback, push_feedback
+                return login_feedback, content, push_feedback
         else:
-            content = f"{user['name']}，登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余：{endday}天"
+            content = f"登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余时间：{endday}天"
             push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                     title=title, content=content)
-            feedback = content
-            return login_feedback, feedback, push_feedback
+            return login_feedback, content, push_feedback
     except json.JSONDecodeError:
-        content = f"{user['name']}，处理登录响应时发生 JSON 解析错误" + f"\n剩余：{endday}天"
+        content = f"处理登录响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        feedback = content
-        return login_feedback, feedback, push_feedback
+        return login_feedback, content, push_feedback
     except KeyError:
-        content = f"{user['name']}，处理登录响应时发生关键字错误" + f"\n剩余：{endday}天"
+        content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        feedback = content
-        return login_feedback, feedback, push_feedback
+        return login_feedback, content, push_feedback
 
 
-def day_Report(time, user, summary, record, project):
+def day_Report(time, user, uid, summary, record, project):
     url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
-        "uid": User_UID,
+        "uid": uid,
         "summary": summary,
         "record": record,
         "starttime": time.strftime("%Y-%m-%d"),
         "dtype": 1,
         "project": project
     }
+    # print(data)
     sign = calculate_sign(data, ADDITIONAL_TEXT)
     herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     info = send_request(url, "POST", herder, data)
     return json.loads(info)
 
 
-def week_Report(time, user, summary, record, project):
+def week_Report(time, user, uid, summary, record, project):
     url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
-        "uid": User_UID,
+        "uid": uid,
         "summary": summary,
         "record": record,
         "starttime": (time + datetime.timedelta(days=-7)).strftime('%Y-%m-%d'),
@@ -250,11 +250,11 @@ def week_Report(time, user, summary, record, project):
     return info
 
 
-def month_Report(time, user, summary, record, project):
+def month_Report(time, user, uid, summary, record, project):
     url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
-        "uid": User_UID,
+        "uid": uid,
         "summary": summary,
         "record": record,
         "starttime": (time + datetime.timedelta(days=-30)).strftime('%Y-%m-%d'),
@@ -273,3 +273,47 @@ def load_report_data_from_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
     return data
+
+
+def report_handler(user):
+    if config.day_report:
+        day_report_data = load_users_from_json("day_report.json")
+        this_day_report_data = day_report_data[random.randint(0, (len(day_report_data) - 1))]
+        this_day_result = day_Report(datetime.datetime.now(), user,
+                                     json.loads(get_user_uid(user))['data']['uid'],
+                                     this_day_report_data['summary'],
+                                     this_day_report_data['recored'],
+                                     this_day_report_data['project'])
+        try:
+            this_day_result_content = f"{this_day_result['msg']}"
+        except:
+            this_day_result_content = this_day_result
+        return this_day_result_content
+    if config.week_report:
+        if datetime.datetime.weekday(datetime.datetime.now()) == 6:
+            week_report_data = load_users_from_json("week_report.json")
+            this_week_report_data = week_report_data[random.randint(0, (len(week_report_data) - 1))]
+            this_week_result = day_Report(datetime.datetime.now(), user,
+                                          json.loads(get_user_uid(user))['data']['uid'],
+                                          this_week_report_data['summary'],
+                                          this_week_report_data['recored'],
+                                          this_week_report_data['project'])
+            try:
+                this_week_result_content = f"{this_week_result['msg']}"
+            except:
+                this_week_result_content = this_week_result
+            return this_week_result_content
+    if config.month_report:
+        if datetime.datetime.now().strftime("%m") == "30":
+            month_report_data = load_report_data_from_json("month_report.json")
+            this_month_report_data = month_report_data[random.randint(0, (len(month_report_data) - 1))]
+            this_month_result = day_Report(datetime.datetime.now(), user,
+                                           json.loads(get_user_uid(user))['data']['uid'],
+                                           this_month_report_data['summary'],
+                                           this_month_report_data['recored'],
+                                           this_month_report_data['project'])
+            try:
+                this_month_result_content = f"{this_month_result['msg']}"
+            except:
+                this_month_result_content = this_month_result
+            return this_month_result_content
