@@ -69,7 +69,7 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         Send, Password, Server_Address, Smtp_Port = config.email_username, config.email_password, config.email_address, config.email_port
     try:
         smtp = smtplib.SMTP_SSL(host=Server_Address, port=Smtp_Port)
-        # smtp.connect(host=Server_Address, port=Smtp_Port)
+        smtp.connect(host=Server_Address, port=Smtp_Port)
         smtp.login(user=Send, password=Password)
         message = MIMEText(content, 'plain', 'utf-8')
         message['Subject'] = title
@@ -79,7 +79,7 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         smtp.quit()
         return f"成功发送邮件到：{Receiver}"
     except Exception as e:
-        return f"邮件发送失败！\n错误描述：{e}"
+        return f"邮件发送失败！错误描述：{e}"
 
 
 if __name__ == "__main__":

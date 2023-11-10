@@ -2,12 +2,15 @@ import datetime
 import hashlib
 import hmac
 import json
+import logging
+import os
 import random
 import re
 import time
 import requests
 
 import config
+import pushinfo
 from utils import MessagePush
 
 
@@ -28,7 +31,8 @@ def get_Apitoken():
             return token
         else:
             return ""
-    except json.JSONDecodeError:
+    except Exception as e:
+        logging_print("warning", e)
         return ""
 
 
@@ -165,7 +169,7 @@ def login_and_sign_in(user, endday):
     try:
         login_result = json.loads(login_data)
         if login_result['code'] == 1001:
-            login_feedback = f"{user['name']}登录成功！"
+            login_feedback = f"{user['name']} 登录成功！"
             uid = login_result['data']['uid']
             global ADDITIONAL_TEXT
             ADDITIONAL_TEXT = login_result['data']['UserToken']
@@ -186,7 +190,7 @@ def login_and_sign_in(user, endday):
                     return login_feedback, content, push_feedback
                 else:
                     content = f"打卡失败，错误信息：" + sign_in_result.get('msg',
-                                                                                        '未知错误') + f"\n剩余时间：{endday}天"
+                                                                         '未知错误') + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
                     return login_feedback, content, push_feedback
@@ -194,6 +198,7 @@ def login_and_sign_in(user, endday):
                 content = f"处理打卡响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
                 push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
+                logging_print("warning", content)
                 return login_feedback, content, push_feedback
         else:
             content = f"登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余时间：{endday}天"
@@ -204,11 +209,13 @@ def login_and_sign_in(user, endday):
         content = f"处理登录响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
+        logging_print("warning", content)
         return login_feedback, content, push_feedback
     except KeyError:
         content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
+        logging_print("warning", content)
         return login_feedback, content, push_feedback
 
 
@@ -287,6 +294,7 @@ def report_handler(user):
             this_day_result_content = f"{this_day_result['msg']}"
         except:
             this_day_result_content = this_day_result
+            logging_print("warning", this_day_result_content)
         return this_day_result_content
     if config.week_report:
         if datetime.datetime.weekday(datetime.datetime.now()) == 6:
@@ -301,6 +309,7 @@ def report_handler(user):
                 this_week_result_content = f"{this_week_result['msg']}"
             except:
                 this_week_result_content = this_week_result
+                logging_print("warning", this_week_result_content)
             return this_week_result_content
     if config.month_report:
         if datetime.datetime.now().strftime("%m") == "30":
@@ -315,4 +324,36 @@ def report_handler(user):
                 this_month_result_content = f"{this_month_result['msg']}"
             except:
                 this_month_result_content = this_month_result
+                logging_print("warning", this_month_result_content)
             return this_month_result_content
+
+
+def logging_print(log_type, msg):
+    if config.log_report:
+        log_file_Name = f"职教家园-{datetime.datetime.now().strftime('%Y-%m-%d')}.log"
+        if os.path.exists("log"):
+            pass
+        else:
+            os.mkdir("log")
+        open(f"log/{log_file_Name}", "a")
+        logging.basicConfig(level=logging.NOTSET,
+                            filename=f"log/{log_file_Name}",
+                            filemode="a",
+                            format="%(asctime)s - %(name)s - %(levelname)-s - %(message)s",
+                            datefmt="%Y-%m-%d %H:%M:%S",
+                            encoding="utf-8"
+                            )
+
+        if log_type == "debug":
+            logging.debug(msg)
+        elif log_type == "info":
+            logging.info(msg)
+        elif log_type == "warning":
+            logging.warning(msg)
+        elif log_type == "error":
+            logging.error(msg)
+        elif log_type == "critical":
+            logging.error(msg)
+    else:
+        pass
+    return None

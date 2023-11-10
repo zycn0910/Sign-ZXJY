@@ -12,9 +12,7 @@ email_username = "@"
 email_password = ""
 email_address = ""
 email_port = ""
-'''程序运行时间（满足此时间才推送信息，否则本地输出）
-早上7点运行时推送，其余时间运行不推送填07
-留空为无论何时都推送
+'''程序运行时间（满足此时间才推送信息，否则本地输出），早上7点运行时推送，其余时间运行不推送填07，留空为无论何时都推送
 '''
 time = "07"
 '''随机时间'''
@@ -32,7 +30,7 @@ week_report = False
 # 是否开启月报，每月30号提交
 month_report = False
 
-'''运行日志推送，仅支持smtp邮件推送，如果为True，下方data必填'''
+'''运行日志推送，仅支持smtp邮件推送'''
 log_report = False
 log_report_data = {
     # smtp用户名
