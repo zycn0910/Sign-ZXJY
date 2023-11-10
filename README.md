@@ -55,6 +55,8 @@
 
 ### 源码运行
 
+更新```pip install --upgrade pip```
+
 安装所需依赖```pip install  -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
 
 添加用户运行`python AddUser.py`/`python AddUser-noinput.py`。
