@@ -30,7 +30,7 @@ week_report = False
 # 是否开启月报，每月30号提交
 month_report = False
 
-'''运行日志推送，仅支持smtp邮件推送'''
+'''日志，仅支持smtp邮件推送'''
 log_report = False
 log_report_data = {
     # smtp用户名

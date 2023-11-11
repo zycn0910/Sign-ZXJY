@@ -10,12 +10,32 @@ import time
 import requests
 
 import config
-import pushinfo
 from utils import MessagePush
+
+if config.log_report:
+    log_file_Name = f"职教家园-{datetime.datetime.now().strftime('%Y-%m-%d %H')}.log"
+    if not os.path.exists("log"):
+        os.mkdir("log")
+    else:
+        pass
+    open(f"log/{log_file_Name}", "a")
+    logging.getLogger('DEBUG')
+    logging.basicConfig(level=logging.NOTSET,
+                        filename=f"log/{log_file_Name}",
+                        filemode="a",
+                        format="%(asctime)s - %(name)s - %(levelname)-s - %(message)s - %(filename)s - %(funcName)s - %(lineno)s",
+                        datefmt="%Y-%m-%d %H:%M:%S",
+                        encoding="utf-8"
+                        )
+else:
+    pass
+
 
 
 def random_Time(time):
-    return random.randint(int(time[0]), int(time[1]))
+    data = random.randint(int(time[0]), int(time[1]))
+    logging.info(data)
+    return data
 
 
 def get_Apitoken():
@@ -28,24 +48,30 @@ def get_Apitoken():
         result = response.json()
         if result["code"] == 1001:
             token = result["data"]["apitoken"]
+            logging.info(token)
             return token
         else:
+            logging.warning("get_Apitoken获取token失败")
             return ""
     except Exception as e:
-        logging_print("warning", e)
+        logging.warning(e)
         return ""
 
 
 def load_users_from_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        users = json.load(file)
-    return users
+    if os.path.exists(file_path):
+        logging.info("检测到用户数据文件，已加载！")
+    else:
+        open(file_path, 'w', encoding='utf-8').write("[\n\n]")
+        logging.info(f"未检测到 {file_path} 文件，已自动创建！")
+    return json.load(open(file_path, 'r', encoding='utf-8'))
 
 
 def calculate_hmac_sha256(secret_key, message):
     key = bytes(secret_key, 'utf-8')
     message = bytes(message, 'utf-8')
     hashed = hmac.new(key, message, hashlib.sha256)
+    logging.info(hashed)
     return hashed.hexdigest()
 
 
@@ -72,7 +98,7 @@ def generate_headers(sign, phonetype, token):
         Content_Type = 'application/json; charset=UTF-8'
         User_Agent = "okhttp/3.14.9"
         Connection = "keep-alive"
-    return {
+    data = {
         'Accept': Accept,
         'timestamp': timestamp,
         'os': os,
@@ -86,6 +112,8 @@ def generate_headers(sign, phonetype, token):
         'sign': sign,
         'appVersion': Version
     }
+    logging.info(data)
+    return data
 
 
 def send_request(url, method, headers, data):
@@ -95,13 +123,16 @@ def send_request(url, method, headers, data):
         response = requests.get(url, headers=headers, params=data)
     else:
         raise ValueError("Unsupported HTTP method")
+    logging.info(response)
     return response.text
 
 
 def calculate_sign(data, token):
     json_data = json.dumps(data)
     combined_text = json_data + token
-    return calculate_hmac_sha256('Anything_2023', combined_text)
+    data = calculate_hmac_sha256('Anything_2023', combined_text)
+    logging.info(data)
+    return data
 
 
 def login_request(phone_type, phone_number, password, dToken, additional_text):
@@ -115,6 +146,7 @@ def login_request(phone_type, phone_number, password, dToken, additional_text):
     headers = generate_headers(sign, phone_type, additional_text)
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
     response_text = send_request(url, 'POST', headers, data)
+    logging.info(response_text)
     return response_text
 
 
@@ -138,6 +170,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     headers = generate_headers(sign, phonetype, additional_text)
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
     response_text = send_request(url, 'POST', headers, data)
+    logging.info(response_text)
     return response_text
 
 
@@ -146,6 +179,7 @@ def get_user_uid(user):
     if not login_token:
         print("获取 Token 失败，无法继续操作")
     login_data = login_request(user['deviceId'], user['phone'], user['password'], user['dToken'], login_token)
+    logging.info(login_data)
     return login_data
 
 
@@ -156,7 +190,9 @@ def login_and_sign_in(user, endday):
     # 登录
     if not user['enabled']:
         content = f"未启用打卡，即将跳过！"
-        return login_feedback, content, push_feedback
+        data = login_feedback, content, push_feedback
+        logging.info(data)
+        return data
     if endday >= 0:
         pass
     else:
@@ -164,10 +200,13 @@ def login_and_sign_in(user, endday):
         content = f"您已到期！"
         push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        return login_feedback, content, push_feedback
+        data = login_feedback, content, push_feedback
+        logging.info(data)
+        return data
     login_data = get_user_uid(user)
     try:
         login_result = json.loads(login_data)
+        logging.info(login_result)
         if login_result['code'] == 1001:
             login_feedback = f"{user['name']} 登录成功！"
             uid = login_result['data']['uid']
@@ -178,6 +217,7 @@ def login_and_sign_in(user, endday):
             sign_in_response = sign_in_request(uid, user['address'], user['deviceId'], 0, user['longitude'],
                                                user['latitude'], ADDITIONAL_TEXT,
                                                user['modify_coordinates'])
+            logging.info(sign_in_response)
             try:
                 sign_in_result = json.loads(sign_in_response)
                 if sign_in_result['code'] == 1001:
@@ -198,7 +238,7 @@ def login_and_sign_in(user, endday):
                 content = f"处理打卡响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
                 push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
-                logging_print("warning", content)
+                logging.warning(content)
                 return login_feedback, content, push_feedback
         else:
             content = f"登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余时间：{endday}天"
@@ -209,13 +249,13 @@ def login_and_sign_in(user, endday):
         content = f"处理登录响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging_print("warning", content)
+        logging.warning(content)
         return login_feedback, content, push_feedback
     except KeyError:
         content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging_print("warning", content)
+        logging.warning(content)
         return login_feedback, content, push_feedback
 
 
@@ -234,6 +274,7 @@ def day_Report(time, user, uid, summary, record, project):
     sign = calculate_sign(data, ADDITIONAL_TEXT)
     herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     info = send_request(url, "POST", herder, data)
+    logging.info(info)
     return json.loads(info)
 
 
@@ -253,6 +294,7 @@ def week_Report(time, user, uid, summary, record, project):
     sign = calculate_sign(data, ADDITIONAL_TEXT)
     herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     info = send_request(url, "POST", herder, data)
+    logging.info(info)
     return info
 
 
@@ -272,13 +314,17 @@ def month_Report(time, user, uid, summary, record, project):
     sign = calculate_sign(data, ADDITIONAL_TEXT)
     herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     info = send_request(url, "POST", herder, data)
+    logging.info(info)
     return info
 
 
 def load_report_data_from_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    return data
+    if os.path.exists(file_path):
+        logging.info("检测到实习报告文件，已加载！")
+    else:
+        open(file_path, 'w', encoding='utf-8').write("[\n\n]")
+        logging.info(f"未检测到 {file_path} 文件，已自动创建！")
+    return json.load(open(file_path, 'r', encoding='utf-8'))
 
 
 def report_handler(user):
@@ -294,7 +340,7 @@ def report_handler(user):
             this_day_result_content = f"{this_day_result['msg']}"
         except:
             this_day_result_content = this_day_result
-            logging_print("warning", this_day_result_content)
+            logging.warning(this_day_result_content)
         return this_day_result_content
     if config.week_report:
         if datetime.datetime.weekday(datetime.datetime.now()) == 6:
@@ -309,7 +355,7 @@ def report_handler(user):
                 this_week_result_content = f"{this_week_result['msg']}"
             except:
                 this_week_result_content = this_week_result
-                logging_print("warning", this_week_result_content)
+                logging.warning(this_week_result_content)
             return this_week_result_content
     if config.month_report:
         if datetime.datetime.now().strftime("%m") == "30":
@@ -324,36 +370,5 @@ def report_handler(user):
                 this_month_result_content = f"{this_month_result['msg']}"
             except:
                 this_month_result_content = this_month_result
-                logging_print("warning", this_month_result_content)
+                logging.warning(this_month_result_content)
             return this_month_result_content
-
-
-def logging_print(log_type, msg):
-    if config.log_report:
-        log_file_Name = f"职教家园-{datetime.datetime.now().strftime('%Y-%m-%d')}.log"
-        if os.path.exists("log"):
-            pass
-        else:
-            os.mkdir("log")
-        open(f"log/{log_file_Name}", "a")
-        logging.basicConfig(level=logging.NOTSET,
-                            filename=f"log/{log_file_Name}",
-                            filemode="a",
-                            format="%(asctime)s - %(name)s - %(levelname)-s - %(message)s",
-                            datefmt="%Y-%m-%d %H:%M:%S",
-                            encoding="utf-8"
-                            )
-
-        if log_type == "debug":
-            logging.debug(msg)
-        elif log_type == "info":
-            logging.info(msg)
-        elif log_type == "warning":
-            logging.warning(msg)
-        elif log_type == "error":
-            logging.error(msg)
-        elif log_type == "critical":
-            logging.error(msg)
-    else:
-        pass
-    return None

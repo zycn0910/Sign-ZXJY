@@ -20,39 +20,31 @@ def main(users):
             tqdm.write(f"=========={user['name']}==========")
             waittime = process.random_Time(config.range_time)
             tqdm.write(f"本次随机 {waittime} s")
-            time.sleep(float(waittime))
-            process.logging_print("info", f"{user['name']} 随机 {waittime} s")
+            # time.sleep(float(waittime))
+            logging.info(f"{user['name']} 随机 {waittime} s")
             now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             TDOA = datetime.datetime.strptime(user['enddate'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(
                 now_localtime, '%Y-%m-%d %H:%M:%S')
             info = process.login_and_sign_in(user=user, endday=TDOA.days)
-            # 处理打卡日志
-            try:
-                for i in range(0, len(info)):
-                    # 美观数据
-                    data = info[i].replace("\n", "").replace("未在", "。未在").replace("剩余", "。剩余")
-                    logData = logData + data
-                    process.logging_print("info", data.replace("\n", "").replace("。", ""))
-                    i = i + 1
-                logData = logData + "\n"
-            except Exception as e:
-                if config.log_report:
-                    process.logging_print("warning", e)
-                else:
+            logging.info(f"{user['name']} 的返回值为{info}")
+            if config.log_report:
+                try:
+                    for i in range(0, len(info)):
+                        logData = logData + info[i].replace("\n", "").replace("未在", "。未在").replace("剩余", "。剩余")
+                    logData = logData + "\n"
+                except:
                     pass
-            # 打卡日志处理完成
+            else:
+                pass
             for i in range(0, len(info)):
                 tqdm.write(f"{info[i]}")
-                i = i + 1
         if config.log_report:
-            email = config.log_report_data
-            data = pushinfo.Send_Email(email['emailUsername'], email['emailPassword'], email['emailAddress'],
-                                             email['emailPort'], email['Receiver'], "test", logData)
-            logging.info(data)
-            print(data)
-        else:
-            pass
-        bar.close()
+            logging.info(
+                pushinfo.Send_Email(config.log_report_data['emailUsername'], config.log_report_data['emailPassword'],
+                                    config.log_report_data['emailAddress'],
+                                    config.log_report_data['emailPort'], config.log_report_data['Receiver'], "test",
+                                    logData))
+    bar.close()
 
 
 if __name__ == "__main__":
