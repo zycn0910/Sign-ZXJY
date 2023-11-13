@@ -375,6 +375,3 @@ def report_handler(user):
                 logging.warning(this_month_result_content)
             return this_month_result_content
 
-
-if __name__  == "__main__":
-    print(generate_headers("1234", "Iphone", "12354"))
