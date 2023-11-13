@@ -27,7 +27,7 @@
 2、添加实习报告提交功能（默认关闭，`config.py`里开启），开启前请修改`day_report.json`、`week_report.json`、`month_report.json`内的数据内容。开启后每次提交对应文件内的随机一条数据。
 
 ### 11.4更新日志
-1、使用[rialll](https://github.com/fuckZXJY)算法。
+1、使用[rialll](https://github.com/rialll/fuckZXJY)算法。
 
 ### 11.1更新日志
 1、APP更新验证版本，本脚本同步更新。
