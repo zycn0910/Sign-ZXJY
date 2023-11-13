@@ -4,7 +4,6 @@
 
 ## 重要
 <font color="red">项目被代挂狗举报，随时删除</font>
->鸣谢[rialll](https://github.com/rialll/fuckZXJY)，您使用本项目之前请去star。
 > 
 >本项目基于[GPL3.0开源协议](https://www.gnu.org/licenses/gpl-3.0.zh-cn.html)。
 > 
