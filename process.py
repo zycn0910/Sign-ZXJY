@@ -77,7 +77,7 @@ def calculate_hmac_sha256(secret_key, message):
 
 def generate_headers(sign, phonetype, token):
     timestamp = str(round(time.time() * 1000))
-    if "IPH" or "iPh" or "iph" in phonetype:
+    if "iph" in phonetype.lower():
         os = "ios"
         Accept = "*/*"
         Version = "".join(re.findall('new__latest__version">(.*?)</p>',
@@ -92,7 +92,10 @@ def generate_headers(sign, phonetype, token):
     else:
         os = "android"
         Accept = "*/*"
-        Version = "57"
+        Version = "".join(re.findall('v\d+\.\d+\.\d+',
+                                     requests.get(
+                                         'https://r.app.xiaomi.com/details?id=com.wyl.exam').text,
+                                     re.S)).replace('v', '')
         Accept_Encoding = 'gzip'
         Accept_Language = 'zh-Hans-CN;q=1'
         Content_Type = 'application/json; charset=UTF-8'
@@ -270,7 +273,6 @@ def day_Report(time, user, uid, summary, record, project):
         "dtype": 1,
         "project": project
     }
-    # print(data)
     sign = calculate_sign(data, ADDITIONAL_TEXT)
     herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     info = send_request(url, "POST", herder, data)
@@ -372,3 +374,7 @@ def report_handler(user):
                 this_month_result_content = this_month_result
                 logging.warning(this_month_result_content)
             return this_month_result_content
+
+
+if __name__  == "__main__":
+    print(generate_headers("1234", "Iphone", "12354"))
