@@ -1,6 +1,6 @@
 <h1 align="center">职校家园打卡</h1>
 
-<p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/Licenses-GPL3.0-brightgreen"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Language-Python-brightgreen"></a>    <a href="https://github.com/rialll/fuckZXJY"><img src="https://img.shields.io/badge/Thank-rialll-red"></a></p>
+<p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/Licenses-GPL3.0-brightgreen"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Language-Python-brightgreen"></a>    <img src="https://img.shields.io/badge/Thank-rialll-red"></p>
 
 ## 重要
 <font color="red">项目被代挂狗举报，随时删除</font>
@@ -27,7 +27,7 @@
 2、添加实习报告提交功能（默认关闭，`config.py`里开启），开启前请修改`day_report.json`、`week_report.json`、`month_report.json`内的数据内容。开启后每次提交对应文件内的随机一条数据。
 
 ### 11.4更新日志
-1、使用[rialll](https://github.com/rialll/fuckZXJY)算法。
+1、使用[rialll]()算法。
 
 ### 11.1更新日志
 1、APP更新验证版本，本脚本同步更新。
