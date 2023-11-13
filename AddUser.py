@@ -10,6 +10,7 @@ import urllib
 import requests
 
 import config
+from process import get_account_data
 from utils import MessagePush
 
 pwd = os.path.dirname(os.path.abspath(__file__)) + os.sep
@@ -106,7 +107,8 @@ if __name__ == '__main__':
         day = input("输入打卡天数：")
         if re.match(r"^-?\d+$", day):
             break
-    name = input("输入备注：")
+    # 手机型号
+    device = input("输入手机型号：")
     while True:
         pattern = re.compile(r'^(13[0-9]|14[0|5|6|7|9]|15[0|1|2|3|5|6|7|8|9]|'
                              r'16[2|5|6|7]|17[0|1|2|3|5|6|7|8]|18[0-9]|'
@@ -124,8 +126,9 @@ if __name__ == '__main__':
             break
         else:
             print(f"\033[31m两次密码不一致！\033[0m")
-    # 手机型号
-    device = input("输入手机型号：")
+    name = input("输入备注：（默认为职校家园姓名）")
+    if name == "":
+        name = json.loads(get_account_data(device, phone, password))['data']['uname']
     # 随机定位（经纬度最后一位随机）
     modify_coordinates = input("开启随机最后一位坐标y or n（默认y）：")
     if modify_coordinates == "y":

@@ -9,6 +9,7 @@ import urllib
 import requests
 
 import config
+from process import get_account_data
 from utils import MessagePush
 
 pwd = os.path.dirname(os.path.abspath(__file__)) + os.sep
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     enabled = True
     # 打卡天数
     day = ""
-    # 备注名字
+    # 备注名字（留空为职校家园姓名）
     name = ""
     # 手机号/职教家园账号
     phone = ""
@@ -128,6 +129,8 @@ if __name__ == '__main__':
     # 推送方式为4时的接收邮件的邮箱
     email_receiver = "@"
     '''以下为屎山，无需管'''
+    if name == "":
+        name = json.loads(get_account_data(device, phone, password))['data']['uname']
     now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if pushmode == "1":
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,

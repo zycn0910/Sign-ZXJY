@@ -31,7 +31,6 @@ else:
     pass
 
 
-
 def random_Time(time):
     data = random.randint(int(time[0]), int(time[1]))
     logging.info(data)
@@ -63,7 +62,7 @@ def load_users_from_json(file_path):
         logging.info("检测到用户数据文件，已加载！")
     else:
         open(file_path, 'w', encoding='utf-8').write("[\n\n]")
-        logging.info(f"未检测到 {file_path} 文件，已自动创建！")
+        logging.warning(f"未检测到 {file_path} 文件，已自动创建！")
     return json.load(open(file_path, 'r', encoding='utf-8'))
 
 
@@ -138,13 +137,13 @@ def calculate_sign(data, token):
     return data
 
 
-def login_request(phone_type, phone_number, password, dToken, additional_text):
-    data = {
-        "phone": phone_number,
-        "password": hashlib.md5(password.encode()).hexdigest(),
-        "dtype": 6,
-        "dToken": dToken
-    }
+def login_request(phone_type, phone_number, password, additional_text=None, data=None):
+    if data is None:
+        data = {
+            "phone": phone_number,
+            "password": hashlib.md5(password.encode()).hexdigest(),
+            "dtype": 6,
+        }
     sign = calculate_sign(data, additional_text)
     headers = generate_headers(sign, phone_type, additional_text)
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
@@ -177,11 +176,23 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     return response_text
 
 
-def get_user_uid(user):
+def get_user_uid(deviceId, phone, password):
     login_token = get_Apitoken()
     if not login_token:
         print("获取 Token 失败，无法继续操作")
-    login_data = login_request(user['deviceId'], user['phone'], user['password'], user['dToken'], login_token)
+    login_data = login_request(deviceId, phone, password, login_token)
+    logging.info(login_data)
+    return login_data
+
+
+def get_account_data(deviceId, phone, password):
+    user_data = json.loads(get_user_uid(deviceId, phone, password))
+    uid = user_data['data']['uid']
+    data = {
+        "dtype": 2,
+        "uid": uid
+    }
+    login_data = login_request(deviceId, phone, password, user_data['data']['UserToken'], data)
     logging.info(login_data)
     return login_data
 
@@ -206,10 +217,9 @@ def login_and_sign_in(user, endday):
         data = login_feedback, content, push_feedback
         logging.info(data)
         return data
-    login_data = get_user_uid(user)
+    login_data = get_user_uid(user['deviceId'], user['phone'], user['password'])
     try:
         login_result = json.loads(login_data)
-        logging.info(login_result)
         if login_result['code'] == 1001:
             login_feedback = f"{user['name']} 登录成功！"
             uid = login_result['data']['uid']
@@ -230,29 +240,32 @@ def login_and_sign_in(user, endday):
                         content = content + f"\n实习报告提交：{report_handler(user)}" + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content, )
+                    logging.info(f"{login_feedback}, {content}, {push_feedback}")
                     return login_feedback, content, push_feedback
                 else:
                     content = f"打卡失败，错误信息：" + sign_in_result.get('msg',
                                                                          '未知错误') + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
+                    logging.warning(f"{login_feedback}, {content}, {push_feedback}")
                     return login_feedback, content, push_feedback
             except json.JSONDecodeError:
                 content = f"处理打卡响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
                 push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
-                logging.warning(content)
+                logging.warning(f"{login_feedback}, {content}, {push_feedback}")
                 return login_feedback, content, push_feedback
         else:
             content = f"登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余时间：{endday}天"
             push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                     title=title, content=content)
+            logging.warning(f"{login_feedback}, {content}, {push_feedback}")
             return login_feedback, content, push_feedback
     except json.JSONDecodeError:
         content = f"处理登录响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging.warning(content)
+        logging.warning(f"{login_feedback}, {content}, {push_feedback}")
         return login_feedback, content, push_feedback
     except KeyError:
         content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
@@ -334,7 +347,8 @@ def report_handler(user):
         day_report_data = load_users_from_json("day_report.json")
         this_day_report_data = day_report_data[random.randint(0, (len(day_report_data) - 1))]
         this_day_result = day_Report(datetime.datetime.now(), user,
-                                     json.loads(get_user_uid(user))['data']['uid'],
+                                     json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
+                                         'data']['uid'],
                                      this_day_report_data['summary'],
                                      this_day_report_data['recored'],
                                      this_day_report_data['project'])
@@ -349,7 +363,8 @@ def report_handler(user):
             week_report_data = load_users_from_json("week_report.json")
             this_week_report_data = week_report_data[random.randint(0, (len(week_report_data) - 1))]
             this_week_result = day_Report(datetime.datetime.now(), user,
-                                          json.loads(get_user_uid(user))['data']['uid'],
+                                          json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
+                                              'data']['uid'],
                                           this_week_report_data['summary'],
                                           this_week_report_data['recored'],
                                           this_week_report_data['project'])
@@ -364,7 +379,8 @@ def report_handler(user):
             month_report_data = load_report_data_from_json("month_report.json")
             this_month_report_data = month_report_data[random.randint(0, (len(month_report_data) - 1))]
             this_month_result = day_Report(datetime.datetime.now(), user,
-                                           json.loads(get_user_uid(user))['data']['uid'],
+                                           json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
+                                               'data']['uid'],
                                            this_month_report_data['summary'],
                                            this_month_report_data['recored'],
                                            this_month_report_data['project'])
@@ -374,4 +390,3 @@ def report_handler(user):
                 this_month_result_content = this_month_result
                 logging.warning(this_month_result_content)
             return this_month_result_content
-
