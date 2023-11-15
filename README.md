@@ -18,6 +18,8 @@
 ### 11.15更新日志
 1、增加代理设置，代理数据来自[快代理/免费代理](https://www.kuaidaili.com)，见`config.py`34行。
 
+    本次运行前请执行pip3 install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt 
+
     代理说明：每次运行爬取一条可用代理数据，然后本次运行内的所有网络请求均用此代理。
 
 ### 11.11更新日志
@@ -59,13 +61,20 @@
 
 ### 源码运行
 
-更新```pip install --upgrade pip```
+更新```pip3 install --upgrade pip```
 
-安装所需依赖```pip install  -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
+安装所需依赖```pip3 install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
 
 添加用户运行`python AddUser.py`/`python AddUser-noinput.py`。
 
 打卡主程序运行`python Main.py`。
+
+
+### Linux系统运行
+1、先源码运行一次，然后设置定时任务运行Main.py。
+
+2、[Linux定时任务参考](https://www.runoob.com/w3cnote/linux-crontab-tasks.html).
+
 
 ### 青龙面板
 
