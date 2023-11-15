@@ -8,6 +8,7 @@ import random
 import re
 import time
 import requests
+from bs4 import BeautifulSoup
 
 import config
 from utils import MessagePush
@@ -31,6 +32,57 @@ else:
     pass
 
 
+def get_proxy():
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
+    }
+    page = 1
+    while True:
+        try:
+            url = f"https://www.kuaidaili.com/free/inha/{page}/"
+            html = requests.get(url, headers=headers, timeout=3).text
+            page = page + 1
+        except Exception as e:
+            return None
+        soup = BeautifulSoup(html, features="lxml")
+        tr_tags = soup.find_all("tr")
+        proxy_list = []
+        for tr in tr_tags:
+            ip_tag = tr.find('td', {'data-title': 'IP'})
+            port_tag = tr.find('td', {'data-title': 'PORT'})
+            if ip_tag and port_tag:
+                ip = ip_tag.text
+                port = port_tag.text
+                proxy_list.append(ip + ":" + port)
+        for i in proxy_list:
+            if check_proxy_alive(i):
+                return i
+            else:
+                continue
+
+
+def check_proxy_alive(proxy):
+    try:
+        response = requests.get('http://www.baidu.com/',
+                                proxies={'http': 'http://' + proxy, 'https': 'https://' + proxy}, timeout=3)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
+
+
+if config.proxy_enable:
+    print("代理已开启，正在获取代理地址。。。")
+    global proxy
+    proxy_data = get_proxy()
+    logging.info(proxy_data)
+    print(f"本次运行使用代理 {proxy_data} ")
+else:
+    pass
+
+
 def random_Time(time):
     data = random.randint(int(time[0]), int(time[1]))
     logging.info(data)
@@ -50,10 +102,10 @@ def get_Apitoken():
             logging.info(token)
             return token
         else:
-            logging.warning("get_Apitoken获取token失败")
+            logging.info("get_Apitoken获取token失败")
             return ""
     except Exception as e:
-        logging.warning(e)
+        logging.info(e)
         return ""
 
 
@@ -62,7 +114,7 @@ def load_users_from_json(file_path):
         logging.info("检测到用户数据文件，已加载！")
     else:
         open(file_path, 'w', encoding='utf-8').write("[\n\n]")
-        logging.warning(f"未检测到 {file_path} 文件，已自动创建！")
+        logging.info(f"未检测到 {file_path} 文件，已自动创建！")
     return json.load(open(file_path, 'r', encoding='utf-8'))
 
 
@@ -74,8 +126,7 @@ def calculate_hmac_sha256(secret_key, message):
     return hashed.hexdigest()
 
 
-def generate_headers(sign, phonetype, token):
-    timestamp = str(round(time.time() * 1000))
+def generate_headers(sign, phonetype, token, timestamp):
     if "iph" in phonetype.lower():
         os = "ios"
         Accept = "*/*"
@@ -118,15 +169,30 @@ def generate_headers(sign, phonetype, token):
     return data
 
 
-def send_request(url, method, headers, data):
-    if method.upper() == 'POST':
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-    elif method.upper() == 'GET':
-        response = requests.get(url, headers=headers, params=data)
+def send_request(url, method, headers, data, proxy=None):
+    if proxy is not None:
+        if method.upper() == 'POST':
+            response = requests.post(url=url, headers=headers, data=json.dumps(data),
+                                     proxies={'HTTP': 'http://' + proxy, 'HTTPS': 'https://' + proxy}, timeout=5)
+
+        elif method.upper() == 'GET':
+            response = requests.get(url, headers=headers, params=data,
+                                    proxies={'HTTP': 'http://' + proxy, 'HTTPS': 'https://' + proxy}, timeout=5)
+        else:
+            raise ValueError("Unsupported HTTP method")
+        logging.info(proxy)
+        logging.info(response)
+        return response.text
     else:
-        raise ValueError("Unsupported HTTP method")
-    logging.info(response)
-    return response.text
+        if method.upper() == 'POST':
+            response = requests.post(url=url, headers=headers, data=json.dumps(data))
+        elif method.upper() == 'GET':
+            response = requests.get(url, headers=headers, params=data)
+        else:
+            raise ValueError("Unsupported HTTP method")
+        logging.info(proxy)
+        logging.info(response)
+        return response.text
 
 
 def calculate_sign(data, token):
@@ -145,9 +211,9 @@ def login_request(phone_type, phone_number, password, additional_text=None, data
             "dtype": 6,
         }
     sign = calculate_sign(data, additional_text)
-    headers = generate_headers(sign, phone_type, additional_text)
+    headers = generate_headers(sign, phone_type, additional_text, str(round(time.time() * 1000)))
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
-    response_text = send_request(url, 'POST', headers, data)
+    response_text = send_request(url=url, method='POST', headers=headers, data=data, proxy=proxy_data)
     logging.info(response_text)
     return response_text
 
@@ -169,9 +235,9 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
         "latitude": latitude
     }
     sign = calculate_sign(data, additional_text)
-    headers = generate_headers(sign, phonetype, additional_text)
+    header = generate_headers(sign, phonetype, additional_text, str(round(time.time() * 1000)))
     url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
-    response_text = send_request(url, 'POST', headers, data)
+    response_text = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data)
     logging.info(response_text)
     return response_text
 
@@ -247,31 +313,31 @@ def login_and_sign_in(user, endday):
                                                                          '未知错误') + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content)
-                    logging.warning(f"{login_feedback}, {content}, {push_feedback}")
+                    logging.info(f"{login_feedback}, {content}, {push_feedback}")
                     return login_feedback, content, push_feedback
             except json.JSONDecodeError:
                 content = f"处理打卡响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
                 push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                         pushdata=user['pushdata'], title=title, content=content)
-                logging.warning(f"{login_feedback}, {content}, {push_feedback}")
+                logging.info(f"{login_feedback}, {content}, {push_feedback}")
                 return login_feedback, content, push_feedback
         else:
             content = f"登录失败，错误信息：" + login_result.get('msg', '未知错误') + f"\n剩余时间：{endday}天"
             push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                     title=title, content=content)
-            logging.warning(f"{login_feedback}, {content}, {push_feedback}")
+            logging.info(f"{login_feedback}, {content}, {push_feedback}")
             return login_feedback, content, push_feedback
     except json.JSONDecodeError:
         content = f"处理登录响应时发生 JSON 解析错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging.warning(f"{login_feedback}, {content}, {push_feedback}")
+        logging.info(f"{login_feedback}, {content}, {push_feedback}")
         return login_feedback, content, push_feedback
     except KeyError:
         content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging.warning(content)
+        logging.info(content)
         return login_feedback, content, push_feedback
 
 
@@ -287,8 +353,8 @@ def day_Report(time, user, uid, summary, record, project):
         "project": project
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
-    info = send_request(url, "POST", herder, data)
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data)
     logging.info(info)
     return json.loads(info)
 
@@ -307,8 +373,8 @@ def week_Report(time, user, uid, summary, record, project):
         "stype": 2
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
-    info = send_request(url, "POST", herder, data)
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data)
     logging.info(info)
     return info
 
@@ -327,8 +393,8 @@ def month_Report(time, user, uid, summary, record, project):
         "stype": 3
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    herder = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
-    info = send_request(url, "POST", herder, data)
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data)
     logging.info(info)
     return info
 
@@ -356,7 +422,7 @@ def report_handler(user):
             this_day_result_content = f"{this_day_result['msg']}"
         except:
             this_day_result_content = this_day_result
-            logging.warning(this_day_result_content)
+            logging.info(this_day_result_content)
         return this_day_result_content
     if config.week_report:
         if datetime.datetime.weekday(datetime.datetime.now()) == 6:
@@ -372,7 +438,7 @@ def report_handler(user):
                 this_week_result_content = f"{this_week_result['msg']}"
             except:
                 this_week_result_content = this_week_result
-                logging.warning(this_week_result_content)
+                logging.info(this_week_result_content)
             return this_week_result_content
     if config.month_report:
         if datetime.datetime.now().strftime("%m") == "30":
@@ -388,5 +454,5 @@ def report_handler(user):
                 this_month_result_content = f"{this_month_result['msg']}"
             except:
                 this_month_result_content = this_month_result
-                logging.warning(this_month_result_content)
+                logging.info(this_month_result_content)
             return this_month_result_content
