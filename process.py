@@ -80,7 +80,7 @@ if config.proxy_enable:
     logging.info(proxy_data)
     print(f"本次运行使用代理 {proxy_data} ")
 else:
-    pass
+    proxy_data = None
 
 
 def random_Time(time):
