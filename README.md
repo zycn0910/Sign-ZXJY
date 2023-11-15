@@ -84,13 +84,18 @@
 
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
+beautifulsoup4==4.12.2
 certifi==2023.7.22
 charset-normalizer==3.3.0
 colorama==0.4.6
+docopt==0.6.2
 idna==3.4
+lxml==4.9.3
 requests==2.31.0
+soupsieve==2.5
 tqdm==4.66.1
 urllib3==2.0.7
+yarg==0.1.9
 ```
 
 3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。
