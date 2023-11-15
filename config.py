@@ -31,7 +31,7 @@ week_report = False
 month_report = False
 
 '''是否开启代理'''
-proxy_enable = True
+proxy_enable = False
 
 '''日志，仅支持smtp邮件推送，推送的为简化版日志，详细日志见log内具体文件'''
 log_report = False
