@@ -75,7 +75,6 @@
 
 2、[Linux定时任务参考](https://www.runoob.com/w3cnote/linux-crontab-tasks.html).
 
-
 ### 青龙面板
 
 1、面板配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意，运行一次。

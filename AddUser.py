@@ -141,7 +141,7 @@ if __name__ == '__main__':
     address = input("输入打卡地址：")
     # 推送方式
     pushmode = input("输入信息推送方式（默认控制台打印）：")
-    if "1" and "2" and "3" and "4" not in pushmode:
+    if pushmode not in "1234":
         pushmode = None
         print(f"\033[33m输入无效，已设置默认！\033[0m")
     if pushmode == "1":
