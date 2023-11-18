@@ -8,6 +8,7 @@ import random
 import re
 import time
 import requests
+import tqdm
 from bs4 import BeautifulSoup
 
 import config
@@ -64,7 +65,7 @@ def get_proxy():
 def check_proxy_alive(proxy):
     try:
         response = requests.get('http://www.baidu.com/',
-                                proxies={'http': 'http://' + proxy, 'https': 'https://' + proxy}, timeout=3)
+                                proxies={'http': 'http://' + proxy, 'https': 'https://' + proxy}, timeout=5)
         if response.status_code == 200:
             return True
         else:
@@ -75,10 +76,9 @@ def check_proxy_alive(proxy):
 
 if config.proxy_enable:
     print("代理已开启，正在获取代理地址。。。")
-    global proxy
     proxy_data = get_proxy()
     logging.info(proxy_data)
-    print(f"本次运行使用代理 {proxy_data} ")
+    print(f"本次运行使用代理 \033[31m{proxy_data}\033[0m")
 else:
     proxy_data = None
 
@@ -90,7 +90,7 @@ def random_Time(time):
 
 
 def get_Apitoken():
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
+    url = "http://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
     headers = {
         'content-type': 'application/json;charset=UTF-8',
     }
@@ -170,29 +170,47 @@ def generate_headers(sign, phonetype, token, timestamp):
 
 
 def send_request(url, method, headers, data, proxy=None):
+    global proxy_data
     if proxy is not None:
         if method.upper() == 'POST':
-            response = requests.post(url=url, headers=headers, data=json.dumps(data),
-                                     proxies={'HTTP': 'http://' + proxy, 'HTTPS': 'https://' + proxy}, timeout=5)
-
+            if check_proxy_alive(proxy):
+                response = requests.post(url=url, headers=headers, data=json.dumps(data),
+                                         proxies={'http': 'http://' + proxy, 'https': 'https://' + proxy},
+                                         timeout=5)
+            else:
+                tqdm.tqdm.write(f"\033[31m原代理已失效\033[0m")
+                tqdm.tqdm.write(f"\033[33m本次提交将不使用代理\033[0m")
+                response = requests.post(url=url, headers=headers, data=json.dumps(data))
+                proxy_data = get_proxy()
+                tqdm.tqdm.write(f"现用代理改为 \033[32m{proxy_data}\033[0m")
+            logging.info(proxy)
+            logging.info(response)
+            return response.text
         elif method.upper() == 'GET':
-            response = requests.get(url, headers=headers, params=data,
-                                    proxies={'HTTP': 'http://' + proxy, 'HTTPS': 'https://' + proxy}, timeout=5)
+            if check_proxy_alive(proxy):
+                response = requests.get(url, headers=headers, params=data,
+                                        proxies={'http': 'http://' + proxy, 'https': 'https://' + proxy},
+                                        timeout=5)
+            else:
+                tqdm.tqdm.write(f"\033[31m原代理已失效\033[0m")
+                tqdm.tqdm.write(f"\033[33m本次提交将不使用代理\033[0m")
+                response = requests.get(url=url, headers=headers, data=json.dumps(data))
+                proxy_data = get_proxy()
+                tqdm.tqdm.write(f"现用代理改为 \033[32m{proxy_data}\033[0m")
+            logging.info(proxy)
+            logging.info(response)
+            return response.text
         else:
             raise ValueError("Unsupported HTTP method")
-        logging.info(proxy)
-        logging.info(response)
-        return response.text
     else:
         if method.upper() == 'POST':
             response = requests.post(url=url, headers=headers, data=json.dumps(data))
+            return response.text
         elif method.upper() == 'GET':
-            response = requests.get(url, headers=headers, params=data)
+            response = requests.get(url=url, headers=headers, data=json.dumps(data))
+            return response.text
         else:
             raise ValueError("Unsupported HTTP method")
-        logging.info(proxy)
-        logging.info(response)
-        return response.text
 
 
 def calculate_sign(data, token):
@@ -212,7 +230,7 @@ def login_request(phone_type, phone_number, password, additional_text=None, data
         }
     sign = calculate_sign(data, additional_text)
     headers = generate_headers(sign, phone_type, additional_text, str(round(time.time() * 1000)))
-    url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
     response_text = send_request(url=url, method='POST', headers=headers, data=data, proxy=proxy_data)
     logging.info(response_text)
     return response_text
@@ -236,7 +254,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     }
     sign = calculate_sign(data, additional_text)
     header = generate_headers(sign, phonetype, additional_text, str(round(time.time() * 1000)))
-    url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
     response_text = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data)
     logging.info(response_text)
     return response_text
@@ -342,7 +360,7 @@ def login_and_sign_in(user, endday):
 
 
 def day_Report(time, user, uid, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "http://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
@@ -360,7 +378,7 @@ def day_Report(time, user, uid, summary, record, project):
 
 
 def week_Report(time, user, uid, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "http://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
@@ -380,7 +398,7 @@ def week_Report(time, user, uid, summary, record, project):
 
 
 def month_Report(time, user, uid, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "http://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
