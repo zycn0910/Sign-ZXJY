@@ -20,7 +20,7 @@
 ### 11.18更新日志
 1、优化代理使用逻辑，代理失效后重新获取新的代理。
 
-2、修复添加账号时推送模式为1的bug
+2、修复添加账号时推送模式为1的bug。
 
 
 ### 11.15更新日志
@@ -69,13 +69,17 @@
 
 ### 源码运行
 
-更新```pip3 install --upgrade pip```
+更新
+```pip install --upgrade pip```
 
-安装所需依赖```pip3 install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
+安装所需依赖
+```pip install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt ```。
 
-添加用户运行`python AddUser.py`/`python AddUser-noinput.py`。
+添加用户运行
+`python AddUser.py`/`python AddUser-noinput.py`。
 
-打卡主程序运行`python Main.py`。
+打卡主程序运行
+`python Main.py`。
 
 
 ### Linux系统运行
@@ -85,7 +89,11 @@
 
 ### 青龙面板
 
-1、面板配置文件20行取消代理，新建定时任务，名称随意，命令```ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git```，定时随意，运行一次。
+1、面板配置文件20行取消代理，新建定时任务，名称随意，定时随意，运行一次。
+```
+拉库命令：ql repo https://mirror.ghproxy.com/https://github.com/zycn0910/Sign-ZXJY.git
+```
+
 
 2、在脚本管理zycn0910_Sign-ZXJY文件夹里手动添加`day_report.json`、`week_report.json`、`month_report.json`三个json文件。
 
