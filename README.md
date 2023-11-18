@@ -2,6 +2,11 @@
 
 <p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/Licenses-GPL3.0-brightgreen"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Language-Python-brightgreen"></a>    <img src="https://img.shields.io/badge/Thank-rialll-red"></p>
 
+#### 聊聊
+
+> 不要再问为什么不添加GPT自动生成实习报告了，大专实习每天哪有这么多项目让咱做，总不能一天一个项目高产胜母猪吧。实在不行你自己想办法去看看企业后台和学校后台，一天一个项目假不假。
+
+
 ## 重要
 <font color="red">项目被代挂狗举报，随时删除</font>
 > 
