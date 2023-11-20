@@ -2,14 +2,16 @@
 
 <p align="center"><a href="https://www.gnu.org/licenses/gpl-3.0.zh-cn.html"><img src="https://img.shields.io/badge/licenses-GPL3.0-yellow"></a> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/language-Python-brightgreen"></a> <img src="https://img.shields.io/badge/thank-rialll-red"> <a href="#"><img src="https://visitor-badge.laobi.icu/badge?page_id=zycn0910.Sign-ZXJY"></a></p>
 
-#### 聊聊
-
-> 不要再问为什么不添加GPT自动生成实习报告了，咱都是大专实习每天哪有这么多项目让咱做，总不能一天一个项目高产胜母猪吧。实在不行你自己想办法去看看企业后台和学校后台，一天一个项目假不假。
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline" />
+</picture>
 
 ## 重要
 <font color="red">项目被代挂狗举报，随时删除</font>
 > 
->本项目基于[GPL3.0开源协议](https://www.gnu.org/licenses/gpl-3.0.zh-cn.html)。
+> 本项目基于[GPL3.0开源协议](https://www.gnu.org/licenses/gpl-3.0.zh-cn.html)。
 > 
 > 项目内仅有一处版权信息，详情在`main.py`51行。
 > 
@@ -181,11 +183,3 @@ yarg==0.1.9
     }
   }
 ```
-
-### Star History
-
-<picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=zycn0910/Sign-ZXJY&type=Timeline" />
-</picture>
