@@ -184,3 +184,4 @@ if __name__ == '__main__':
         print("\033[32m写入成功！\033[0m")
     else:
         print(f"\033[31m{userdata[2]}\033[0m")
+    input("按任意键退出...")

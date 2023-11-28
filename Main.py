@@ -18,7 +18,7 @@ def main(users):
             tqdm.write(f"=========={user['name']}==========")
             waittime = process.random_Time(process.config['range_time'])
             tqdm.write(f"本次随机 {waittime} s")
-            # time.sleep(float(waittime))
+            time.sleep(float(waittime))
             logging.info(f"{user['name']} 随机 {waittime} s")
             now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             TDOA = datetime.datetime.strptime(user['enddate'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(
@@ -50,3 +50,4 @@ if __name__ == "__main__":
     tqdm.write("\033[32m====================进程开始====================\033[0m")
     main(process.load_users_from_json("all-users.json"))
     tqdm.write("\033[32m====================进程结束====================\033[0m")
+    input("按任意键退出...")
