@@ -10,7 +10,6 @@ class MessagePush:
             config = yaml.load(f.read(), Loader=yaml.FullLoader)
         if addinfo:
             if pushmode == "1":
-                print(pushdata)
                 if pushdata['Ding']['Secret'] or pushdata['Ding']['Token'] != "":
                     feedback = pushinfo.DingTalkRebot(DingSecret=pushdata['Ding']['Secret'],
                                                       DingToken=pushdata['Ding']['Token'], title=title,
