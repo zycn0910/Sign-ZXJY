@@ -1,15 +1,9 @@
 import base64
-import hashlib
-import hmac
-import json
 import smtplib
-import time
 import urllib
+
 from email.mime.text import MIMEText
-
-import requests
-
-import config
+from process import *
 
 
 def DingTalkRebot(DingSecret, DingToken, title, content):
@@ -63,10 +57,6 @@ def ServerTurbo(token, title, content):
 def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, content):
     if Send is None or Send == '@':
         return f"{Send}，邮箱格式不正确"
-    if config.email_username or config.email_password or config.email_address or config.email_port == "":
-        pass
-    else:
-        Send, Password, Server_Address, Smtp_Port = config.email_username, config.email_password, config.email_address, config.email_port
     try:
         smtp = smtplib.SMTP_SSL(host=Server_Address, port=Smtp_Port)
         smtp.connect(host=Server_Address, port=Smtp_Port)
@@ -80,10 +70,3 @@ def Send_Email(Send, Password, Server_Address, Smtp_Port, Receiver, title, conte
         return f"成功发送邮件到：{Receiver}"
     except Exception as e:
         return f"邮件发送失败！错误描述：{e}"
-
-
-if __name__ == "__main__":
-    title = ""
-    content = ""
-    re = ""
-    Send_Email(config.email_username, config.email_password, config.email_address, config.email_port, re, title, content)

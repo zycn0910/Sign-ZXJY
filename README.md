@@ -23,6 +23,13 @@
 > 
 > 如基于或参考此项目进行二次开发，请注明原作者并使用GPL3.0许可证。
 
+### 11.28更新日志
+1、发行可执行版，无需安装python环境即可使用，详情见release。
+
+2、修改配置文件为`config.yml`，旧的配置文件失效，用户数据无任何变动，可直接移植`all-users.json`文件。
+
+3、运行请先安装依赖`pip install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt`
+
 ### 11.18更新日志
 1、优化代理使用逻辑，代理失效后重新获取新的代理。
 
@@ -32,7 +39,7 @@
 ### 11.15更新日志
 1、增加代理设置，代理数据来自[快代理/免费代理](https://www.kuaidaili.com)，见`config.py`34行。
 
-    本次运行前请执行pip3 install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt 
+    本次运行前请执行pip install -i https://mirrors.aliyun.com/pypi/simple -r requirements.txt 
 
     代理说明：每次运行爬取一条可用代理数据，然后本次运行内的所有网络请求均用此代理。
 
@@ -47,7 +54,7 @@
 2、添加实习报告提交功能（默认关闭，`config.py`里开启），开启前请修改`day_report.json`、`week_report.json`、`month_report.json`内的数据内容。开启后每次提交对应文件内的随机一条数据。
 
 ### 11.4更新日志
-1、使用[rialll]()算法。
+1、使用[rialll](https://github.com/rialll/fuckZXJY)算法。
 
 ### 11.1更新日志
 1、APP更新验证版本，本脚本同步更新。

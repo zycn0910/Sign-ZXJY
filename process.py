@@ -9,12 +9,16 @@ import re
 import time
 import requests
 import tqdm
-from bs4 import BeautifulSoup
+import yaml
 
-import config
+from bs4 import BeautifulSoup
 from utils import MessagePush
 
-if config.log_report:
+
+with open('config.yml', 'r', encoding='utf-8') as f:
+    config = yaml.load(f.read(), Loader=yaml.FullLoader)
+
+if config['log_report']:
     log_file_Name = f"职教家园-{datetime.datetime.now().strftime('%Y-%m-%d %H')}.log"
     if not os.path.exists("log"):
         os.mkdir("log")
@@ -74,7 +78,7 @@ def check_proxy_alive(proxy):
         return False
 
 
-if config.proxy_enable:
+if config['proxy_enable']:
     print("代理已开启，正在获取代理地址。。。")
     proxy_data = get_proxy()
     logging.info(proxy_data)
@@ -84,6 +88,7 @@ else:
 
 
 def random_Time(time):
+    time = time.split("-")
     data = random.randint(int(time[0]), int(time[1]))
     logging.info(data)
     return data
@@ -320,7 +325,7 @@ def login_and_sign_in(user, endday):
                 if sign_in_result['code'] == 1001:
                     title = "职教家园打卡成功！"
                     content = f"打卡成功，提示信息：" + sign_in_result['msg']
-                    if config.day_report or config.week_report or config.month_report:
+                    if config['day_report'] or config['week_report'] or config['month_report']:
                         content = content + f"\n实习报告提交：{report_handler(user)}" + f"\n剩余时间：{endday}天"
                     push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
                                                             pushdata=user['pushdata'], title=title, content=content, )
@@ -427,7 +432,7 @@ def load_report_data_from_json(file_path):
 
 
 def report_handler(user):
-    if config.day_report:
+    if config['day_report']:
         day_report_data = load_users_from_json("day_report.json")
         this_day_report_data = day_report_data[random.randint(0, (len(day_report_data) - 1))]
         this_day_result = day_Report(datetime.datetime.now(), user,
@@ -442,7 +447,7 @@ def report_handler(user):
             this_day_result_content = this_day_result
             logging.info(this_day_result_content)
         return this_day_result_content
-    if config.week_report:
+    if config['week_report']:
         if datetime.datetime.weekday(datetime.datetime.now()) == 6:
             week_report_data = load_users_from_json("week_report.json")
             this_week_report_data = week_report_data[random.randint(0, (len(week_report_data) - 1))]
@@ -458,7 +463,7 @@ def report_handler(user):
                 this_week_result_content = this_week_result
                 logging.info(this_week_result_content)
             return this_week_result_content
-    if config.month_report:
+    if config['month_report']:
         if datetime.datetime.now().strftime("%m") == "30":
             month_report_data = load_report_data_from_json("month_report.json")
             this_month_report_data = month_report_data[random.randint(0, (len(month_report_data) - 1))]
