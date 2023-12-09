@@ -38,9 +38,11 @@ def main(users):
                 tqdm.write(f"{info[i]}")
         if process.config['log_report']:
             logging.info(
-                pushinfo.Send_Email(process.config['log_report_data']['emailUsername'], process.config['log_report_data']['emailPassword'],
+                pushinfo.Send_Email(process.config['log_report_data']['emailUsername'],
+                                    process.config['log_report_data']['emailPassword'],
                                     process.config['log_report_data']['emailAddress'],
-                                    process.config['log_report_data']['emailPort'], process.config['log_report_data']['Receiver'], "职校家园打卡简要日志",
+                                    process.config['log_report_data']['emailPort'],
+                                    process.config['log_report_data']['Receiver'], "职校家园打卡简要日志",
                                     logData))
     bar.close()
 
@@ -50,4 +52,3 @@ if __name__ == "__main__":
     tqdm.write("\033[32m====================进程开始====================\033[0m")
     main(process.load_users_from_json("all-users.json"))
     tqdm.write("\033[32m====================进程结束====================\033[0m")
-    input("按任意键退出...")
