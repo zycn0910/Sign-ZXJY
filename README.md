@@ -90,7 +90,7 @@ yarg==0.1.9
 
 4、测试运行Main。
 
-```如果青龙面板python版本小于3.10，在process.py文件20行，删掉encoding="utf-8"参数```
+```如果青龙面板python版本小于3.10，在process.py文件29行，删掉encoding="utf-8"参数```
 
 ## 推送模块说明
 
