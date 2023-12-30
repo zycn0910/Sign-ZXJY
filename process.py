@@ -12,7 +12,7 @@ import tqdm
 import yaml
 
 from lxml import etree
-
+from openai import OpenAI
 from utils import MessagePush
 
 with open('config.yml', 'r', encoding='utf-8') as f:
@@ -113,7 +113,7 @@ def calculate_hmac_sha256(secret_key, message):
     return hashed.hexdigest()
 
 
-def generate_headers(sign, phonetype, token, timestamp):
+def generate_headers(sign, phonetype, token):
     if "iph" in phonetype.lower():
         os = "ios"
         Accept = "*/*"
@@ -140,7 +140,7 @@ def generate_headers(sign, phonetype, token, timestamp):
         Connection = "keep-alive"
     data = {
         'Accept': Accept,
-        'timestamp': timestamp,
+        'timestamp': str(int(time.time() * 1000)),
         'os': os,
         'Accept-Encoding': Accept_Encoding,
         'Accept-Language': Accept_Language,
@@ -240,7 +240,7 @@ def login_request(phone_type, phone_number, password, additional_text=None, data
             "dtype": 6,
         }
     sign = calculate_sign(data, additional_text)
-    headers = generate_headers(sign, phone_type, additional_text, str(round(time.time() * 1000)))
+    headers = generate_headers(sign, phone_type, additional_text)
     url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
     content = "登录请求"
     response_text = send_request(url=url, method='POST', headers=headers, data=data, proxy=proxy_data, content=content)
@@ -265,7 +265,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
         "latitude": latitude
     }
     sign = calculate_sign(data, additional_text)
-    header = generate_headers(sign, phonetype, additional_text, str(round(time.time() * 1000)))
+    header = generate_headers(sign, phonetype, additional_text)
     url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
     content = "签到请求"
     response_text = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data, content=content)
@@ -292,6 +292,21 @@ def get_account_data(deviceId, phone, password):
     login_data = login_request(deviceId, phone, password, user_data['data']['UserToken'], data)
     logging.info(login_data)
     return login_data
+
+
+def get_job_data(deviceId, phone, password):
+    user_data = json.loads(get_user_uid(deviceId, phone, password))
+    uid = user_data['data']['uid']
+    data = {
+        "dtype": 1,
+        "uid": uid
+    }
+    sign = calculate_sign(data, user_data['data']['UserToken'])
+    headers = generate_headers(sign, deviceId, user_data['data']['UserToken'])
+    url = "http://sxbaapp.zcj.jyt.henan.gov.cn/api/shixi_student_check.ashx"
+    job_data = send_request(url, 'POST', headers, data)
+    logging.info(job_data)
+    return job_data
 
 
 def login_and_sign_in(user, endday):
@@ -364,12 +379,48 @@ def login_and_sign_in(user, endday):
                                                 title=title, content=content)
         logging.info(f"{login_feedback}, {content}, {push_feedback}")
         return login_feedback, content, push_feedback
-    except KeyError:
+    except KeyError as e:
         content = f"处理登录响应时发生关键字错误" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
         logging.info(content)
         return login_feedback, content, push_feedback
+
+
+def prompt_handler(step, speciality=None, job=None, types=None, plan=None, data=None):
+    if step == 'first':
+        return f'我是{speciality}专业的实习生，根据我的专业和我的工作{job}，写一份实习计划，要求：100字以内。'
+    if step == 'second':
+        return f'我将给你一份实习计划：{plan}，根据此计划写一份实习{types}，要求100字以内，包含项目名字（不包含我的专业名字），项目记录，项目总结，并以json格式输出。'
+    if step == 'third':
+        return f'我将给你一份数据{data}，请根据json格式处理给我，格式要求只包含：项目名字（project），项目记录（record），项目总结（summary），不要输出其他多余内容。'
+
+
+def gpt_handler(prompt):
+    if config['gpt_data']['key'] is None:
+        logging.info('GPT-key未配置')
+        return False, 'GPT-key未配置'
+    if config['gpt_data']['url'] is None:
+        client = OpenAI(
+            api_key=config['gpt_data']['key']
+        )
+    else:
+        client = OpenAI(
+            base_url=config['gpt_data']['url'],
+            api_key=config['gpt_data']['key']
+        )
+    messages = [{"role": "user", "content": prompt}]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=messages,
+            temperature=0.7,
+        )
+        logging.info(response)
+        return True, response.choices[0].message.content
+    except Exception as e:
+        logging.info(e)
+        return False, e
 
 
 def day_Report(time, user, uid, summary, record, project):
@@ -384,7 +435,7 @@ def day_Report(time, user, uid, summary, record, project):
         "project": project
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     content = "日报请求"
     info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data, content=content)
     logging.info(info)
@@ -405,7 +456,7 @@ def week_Report(time, user, uid, summary, record, project):
         "stype": 2
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     content = "周报请求"
     info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data, content=content)
     logging.info(info)
@@ -426,67 +477,97 @@ def month_Report(time, user, uid, summary, record, project):
         "stype": 3
     }
     sign = calculate_sign(data, ADDITIONAL_TEXT)
-    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT, str(round(time.time() * 1000)))
+    header = generate_headers(sign, user['deviceId'], ADDITIONAL_TEXT)
     content = "月报请求"
     info = send_request(url=url, method='POST', headers=header, data=data, proxy=proxy_data, content=content)
     logging.info(info)
     return info
 
 
-def load_report_data_from_json(file_path):
-    if os.path.exists(file_path):
-        logging.info("检测到实习报告文件，已加载！")
-    else:
-        open(file_path, 'w', encoding='utf-8').write("[\n\n]")
-        logging.info(f"未检测到 {file_path} 文件，已自动创建！")
-    return json.load(open(file_path, 'r', encoding='utf-8'))
-
-
 def report_handler(user):
+    speciality_data = json.loads(get_account_data(user['deviceId'], user['phone'], user['password']))
+    speciality = speciality_data['data']['major']
+    logging.info(speciality)
+    job_data = json.loads(get_job_data(user['deviceId'], user['phone'], user['password']))
+    job = job_data['data']['bmlist'][0]['gwName']
+    logging.info(job)
+    content = ''
     if config['day_report']:
-        day_report_data = load_users_from_json("day_report.json")
-        this_day_report_data = day_report_data[random.randint(0, (len(day_report_data) - 1))]
+        first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
+        logging.info(first_prompt)
+        first_gpt = gpt_handler(first_prompt)
+        logging.info(first_gpt)
+        second_prompt = prompt_handler(step='second', speciality=speciality, job=job, types='日报', plan=first_gpt)
+        logging.info(second_prompt)
+        second_gpt = gpt_handler(second_prompt)
+        logging.info(second_gpt)
+        third_prompt = prompt_handler(step='third', data=second_gpt)
+        third_gpt = gpt_handler(third_prompt)
+        this_day_report_data = json.loads(third_gpt[1])
         this_day_result = day_Report(datetime.datetime.now(), user,
                                      json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
                                          'data']['uid'],
                                      this_day_report_data['summary'],
-                                     this_day_report_data['recored'],
-                                     this_day_report_data['project'])
+                                     this_day_report_data['record'],
+                                     this_day_report_data['summary'])
         try:
-            this_day_result_content = f"{this_day_result['msg']}"
-        except:
+            content = content + '\n日报：' + f"{this_day_result['msg']}\n{this_day_report_data['summary']}\n{this_day_report_data['record']}\n{this_day_report_data['summary']}"
+        except Exception as e:
             this_day_result_content = this_day_result
+            logging.warning(e)
             logging.info(this_day_result_content)
-        return this_day_result_content
     if config['week_report']:
         if datetime.datetime.weekday(datetime.datetime.now()) == 6:
-            week_report_data = load_users_from_json("week_report.json")
-            this_week_report_data = week_report_data[random.randint(0, (len(week_report_data) - 1))]
-            this_week_result = day_Report(datetime.datetime.now(), user,
+            first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
+            logging.info(first_prompt)
+            first_gpt = gpt_handler(first_prompt)
+            logging.info(first_gpt)
+            second_prompt = prompt_handler(step='second', speciality=speciality, job=job, types='周报', plan=first_gpt)
+            logging.info(second_prompt)
+            second_gpt = gpt_handler(second_prompt)
+            logging.info(second_gpt)
+            third_prompt = prompt_handler(step='third', data=second_gpt)
+            logging.info(third_prompt)
+            third_gpt = gpt_handler(third_prompt)
+            logging.info(third_gpt)
+            this_week_report_data = json.loads(third_gpt[1])
+            this_week_result = week_Report(datetime.datetime.now(), user,
                                           json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
                                               'data']['uid'],
                                           this_week_report_data['summary'],
-                                          this_week_report_data['recored'],
+                                          this_week_report_data['record'],
                                           this_week_report_data['project'])
             try:
-                this_week_result_content = f"{this_week_result['msg']}"
-            except:
+                content = content + '\n周报：' + f"{this_week_result['msg']}\n{this_week_report_data['project']}\n{this_week_report_data['record']}\n{this_week_report_data['summary']}"
+            except Exception as e:
                 this_week_result_content = this_week_result
+                logging.warning(e)
                 logging.info(this_week_result_content)
-            return this_week_result_content
     if config['month_report']:
-        if datetime.datetime.now().strftime("%m") == "30":
-            month_report_data = load_report_data_from_json("month_report.json")
-            this_month_report_data = month_report_data[random.randint(0, (len(month_report_data) - 1))]
-            this_month_result = day_Report(datetime.datetime.now(), user,
+        if datetime.datetime.now().strftime("%d") == "30":
+            first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
+            logging.info(first_prompt)
+            first_gpt = gpt_handler(first_prompt)
+            logging.info(first_gpt)
+            second_prompt = prompt_handler(step='second', speciality=speciality, job=job, types='月报', plan=first_gpt)
+            logging.info(second_prompt)
+            second_gpt = gpt_handler(second_prompt)
+            logging.info(second_gpt)
+            third_prompt = prompt_handler(step='third', data=second_gpt)
+            logging.info(third_prompt)
+            third_gpt = gpt_handler(third_prompt)
+            logging.info(third_gpt)
+            this_month_report_data = json.loads(third_gpt[1])
+            this_month_result = month_Report(datetime.datetime.now(), user,
                                            json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
                                                'data']['uid'],
                                            this_month_report_data['summary'],
-                                           this_month_report_data['recored'],
+                                           this_month_report_data['record'],
                                            this_month_report_data['project'])
             try:
-                this_month_result_content = f"{this_month_result['msg']}"
-            except:
+                content = content + '\n月报：' + f"{this_month_result['msg']}\n{this_month_report_data['project']}\n{this_month_report_data['record']}\n{this_month_report_data['summary']}"
+            except Exception as e:
                 this_month_result_content = this_month_result
+                logging.warning(e)
                 logging.info(this_month_result_content)
-            return this_month_result_content
+    return content
