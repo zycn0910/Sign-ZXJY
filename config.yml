@@ -29,7 +29,7 @@ api_token: "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
 # 是否开启实习报告（打卡成功才会提交）
 # 使用GPT官方库，可使用支持官方库的api地址和key
 gpt_data:
-  # 指定GPT-API接口，留空使用官方url（需梯子），你可填写国内镜像站，例如chateverywhere：https://api.chatanywhere.com.cn/v1
+  # 指定GPT-API接口，留空使用官方url（需梯子），你可填写国内镜像站，例如chatanywhere：https://api.chatanywhere.com.cn/v1
   url: https://xxxxxxxxxxxxx/v1
   # key，会用你就知道填什么，保障有足够的余额
   key: sk-xxxxxxxxxxx

@@ -27,7 +27,7 @@
 ```
 config.yml第31行配置说明：
 url：请求地址
-# 例如chateverywhere的地址为：api.chatanywhere.com.cn，需填写https://api.chatanywhere.com.cn/v1
+# 例如chatanywhere的地址为：api.chatanywhere.com.cn，需填写https://api.chatanywhere.com.cn/v1
 key：秘钥
 # 填写sk-xxxxxx，注意‘sk-’不要省略
 ```
