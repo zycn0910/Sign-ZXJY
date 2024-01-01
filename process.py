@@ -509,9 +509,9 @@ def report_handler(user):
                                          'data']['uid'],
                                      this_day_report_data['summary'],
                                      this_day_report_data['record'],
-                                     this_day_report_data['summary'])
+                                     this_day_report_data['project'])
         try:
-            content = content + '\n日报：' + f"{this_day_result['msg']}\n{this_day_report_data['summary']}\n{this_day_report_data['record']}\n{this_day_report_data['summary']}"
+            content = content + '\n日报：' + f"{this_day_result['msg']}\n{this_day_report_data['project']}\n{this_day_report_data['record']}\n{this_day_report_data['summary']}"
         except Exception as e:
             this_day_result_content = this_day_result
             logging.warning(e)
@@ -532,11 +532,11 @@ def report_handler(user):
             logging.info(third_gpt)
             this_week_report_data = json.loads(third_gpt[1])
             this_week_result = week_Report(datetime.datetime.now(), user,
-                                          json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
-                                              'data']['uid'],
-                                          this_week_report_data['summary'],
-                                          this_week_report_data['record'],
-                                          this_week_report_data['project'])
+                                           json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
+                                               'data']['uid'],
+                                           this_week_report_data['summary'],
+                                           this_week_report_data['record'],
+                                           this_week_report_data['project'])
             try:
                 content = content + '\n周报：' + f"{this_week_result['msg']}\n{this_week_report_data['project']}\n{this_week_report_data['record']}\n{this_week_report_data['summary']}"
             except Exception as e:
@@ -559,15 +559,17 @@ def report_handler(user):
             logging.info(third_gpt)
             this_month_report_data = json.loads(third_gpt[1])
             this_month_result = month_Report(datetime.datetime.now(), user,
-                                           json.loads(get_user_uid(user['deviceId'], user['phone'], user['password']))[
-                                               'data']['uid'],
-                                           this_month_report_data['summary'],
-                                           this_month_report_data['record'],
-                                           this_month_report_data['project'])
+                                             json.loads(
+                                                 get_user_uid(user['deviceId'], user['phone'], user['password']))[
+                                                 'data']['uid'],
+                                             this_month_report_data['summary'],
+                                             this_month_report_data['record'],
+                                             this_month_report_data['project'])
             try:
                 content = content + '\n月报：' + f"{this_month_result['msg']}\n{this_month_report_data['project']}\n{this_month_report_data['record']}\n{this_month_report_data['summary']}"
             except Exception as e:
                 this_month_result_content = this_month_result
                 logging.warning(e)
                 logging.info(this_month_result_content)
+    logging.info(content)
     return content
