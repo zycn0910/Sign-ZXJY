@@ -18,10 +18,10 @@ push-data:
     email_port: ""
 
 # 程序运行时间（满足此时间才推送信息，否则本地输出），早上7点运行时推送，其余时间运行不推送填07，留空为无论何时都推送
-time: ""
+time: "07"
 
 # 每位用户随机时间（秒）
-range_time: "5-10"
+range_time: "20-30"
 
 # 腾讯地图api密钥，获取地址经纬度需要
 api_token: "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
@@ -30,18 +30,15 @@ api_token: "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
 # 使用GPT官方库，可使用支持官方库的api地址和key
 gpt_data:
   # 指定GPT-API接口，留空使用官方url（需梯子），你可填写国内镜像站，例如chatanywhere：https://api.chatanywhere.com.cn/v1
-  url: https://xxxxxxxxxxxxx/v1
+  url:
   # key，会用你就知道填什么，保障有足够的余额
-  key: sk-xxxxxxxxxxx
+  key:
 # 是否开启日报，每日提交
 day_report: False
 # 是否开启周报，每周日提交
 week_report: False
 # 是否开启月报，每月30号提交
 month_report: False
-
-# 是否开启代理
-proxy_enable: False
 
 # 日志，仅支持smtp邮件推送，推送的为简化版日志，详细日志见log内具体文件'''
 log_report: False
