@@ -117,7 +117,10 @@ if __name__ == '__main__':
             print(f"\033[31m两次密码不一致！\033[0m")
     name = input("输入备注：（默认为职校家园姓名）")
     if name == "":
-        name = json.loads(get_account_data(device, phone, password))['data']['uname']
+        account_data = get_account_data(phone, password, device)
+        uid = account_data[1]
+        token = account_data[2]
+        name = json.loads(get_user_info(uid, device, token)['data']['uname'][1])
     # 随机定位（经纬度最后一位随机）
     modify_coordinates = input("开启随机最后一位坐标y or n（默认y）：")
     if modify_coordinates == "y":
