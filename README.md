@@ -22,16 +22,9 @@
 > 您所使用本项目但不仅限于本项目所造成的任何后果均由您本人承担，与项目作者无关，您使用即代表您同意！
 > 
 > 如基于或参考此项目进行二次开发，请注明原作者并使用GPL3.0许可证。
-### 12.31更新日志
-1、实习报告提交接入ChatGPT，使用GPT官方库，可使用任何支持官方接口的国内镜像站，所提交的数据经过GPT三次处理，以求达到精准。如需自定义提示词，移步`process.py`第390行`prompt_handler`函数，因各个接口限制不同，请根据用户数量酌情更改`config.yml`第24行的延时时间。
-```
-config.yml第31行配置说明：
-url：请求地址
-# 例如chatanywhere的地址为：api.chatanywhere.com.cn，需填写https://api.chatanywhere.com.cn/v1
-key：秘钥
-# 填写sk-xxxxxx，注意‘sk-’不要省略
-```
-建议使用chateverywhere免费接口（有限制），如使用付费接口，推荐[GPT官方](https://chat.openai.com/)、[API2D](https://api2d.com/r/218099)、[OhMyGPT](https://aigptx.top?aff=I3K0Ufov)，链接中可能带了邀请码，如果您不需要，可以删掉某些选项，直接访问官网。
+
+### 2.19更新日志
+1、增加节假日判断，如果当天为中国法定节假日，则跳过打卡和提交实习报告。默认为关，见config.yml第43-44行。
 
 ## 介绍
 1、增加多种推送模式，例如Pushplus、DingDingWebHook机器人、Server_Turbo推送、自建Smtp邮件推送（邮件推送支持一对多、一对一）。
@@ -41,6 +34,16 @@ key：秘钥
 3、增加添加用户功能（可交互和非交互两种）、无需每次更改json文件。
 
 4、优化推送、可设置满足某一条件推送，默认为无论何时运行都推送。详情见config.py第21行。
+
+5、实习报告提交接入ChatGPT，使用GPT官方库，可使用任何支持官方接口的国内镜像站，所提交的数据经过GPT三次处理，以求达到精准。如需自定义提示词，移步`process.py`第390行`prompt_handler`函数，因各个接口限制不同，请根据用户数量酌情更改`config.yml`第24行的延时时间。
+```
+config.yml第31行配置说明：
+url：请求地址
+# 例如chatanywhere的地址为：api.chatanywhere.com.cn，需填写https://api.chatanywhere.com.cn/v1
+key：秘钥
+# 填写sk-xxxxxx，注意‘sk-’不要省略
+```
+建议使用chateverywhere免费接口（有限制），如使用付费接口，推荐[GPT官方](https://chat.openai.com/)、[API2D](https://api2d.com/r/218099)、[OhMyGPT](https://aigptx.top?aff=I3K0Ufov)，链接中可能带了邀请码，如果您不需要，可以删掉某些选项，直接访问官网。
 
 
 ## 使用说明
@@ -71,7 +74,7 @@ key：秘钥
 
 1、面板配置文件20行取消代理，新建定时任务，名称随意，定时随意，运行一次。
 ```
-拉库命令：ql repo https://mirror.ghproxy.com/https://github.com/zycn0910/Sign-ZXJY.git
+拉库命令：ql repo https://kkgithub.com/zycn0910/Sign-ZXJY.git
 ```
 
 
@@ -79,18 +82,11 @@ key：秘钥
 
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
-beautifulsoup4==4.12.2
-certifi==2023.7.22
-charset-normalizer==3.3.0
-colorama==0.4.6
-docopt==0.6.2
-idna==3.4
-lxml==4.9.3
-requests==2.31.0
-soupsieve==2.5
+chinese_calendar==1.9.0
+openai==1.12.0
+PyYAML==6.0.1
+Requests==2.31.0
 tqdm==4.66.1
-urllib3==2.0.7
-yarg==0.1.9
 ```
 
 3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。

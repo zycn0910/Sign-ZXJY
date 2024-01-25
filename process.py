@@ -7,10 +7,10 @@ import os
 import random
 import re
 import time
-import traceback
 import requests
 import yaml
 
+from chinese_calendar import get_holiday_detail
 from openai import OpenAI
 from utils import MessagePush
 
@@ -207,7 +207,7 @@ def get_account_data(phone, password, deviceId):
     if account_data['code'] == 1001:
         return True, account_data['data']['uid'], account_data['data']['UserToken']
     else:
-        return False
+        return account_data['msg']
 
 
 # 获取ZXJY用户岗位信息
@@ -229,26 +229,35 @@ def get_job_data(uid, deviceId, token):
 
 # ZXJY打卡函数调用
 def login_and_sign_in(user, endday):
-    title = "职教家园打卡失败！"
+    title = "职教家园打卡通知"
     login_feedback = "登录失败！"
     push_feedback = "推送无效！"
     if not user['enabled']:
         content = f"未启用打卡，即将跳过！"
-        logging.info(f'{login_feedback, content, push_feedback}')
         return login_feedback, content, push_feedback
     if endday >= 0:
         pass
     else:
-        title = "职教家园打卡通知"
         content = f"您已到期！"
         push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging.info(f'{login_feedback, content, push_feedback}')
         return login_feedback, content, push_feedback
+    if config['holiday_pass']:
+        holiday_data = get_holiday_detail(datetime.date(2024, 5, 1))
+        if holiday_data:
+            if holiday_data[1] is None:
+                content = f'{user["name"]}，今天是法定节假日！无需打卡！\n剩余时间：{endday}天'
+            else:
+                content = f'{user["name"]}，今天是 {holiday_data[1]} ！，无需打卡！\n剩余时间：{endday}天'
+            push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
+                                                    pushdata=user['pushdata'], title=title, content=content)
+            return login_feedback, content, push_feedback
+        else:
+            pass
     try:
         account_data = get_account_data(user['phone'], user['password'], user['deviceId'])
         if account_data:
-            login_feedback = f"{user['name']} 登录成功！"
+            login_feedback = f"{user['name']}，登录成功！"
             uid = account_data[1]
             token = account_data[2]
             if not token:
@@ -258,26 +267,20 @@ def login_and_sign_in(user, endday):
                                                user['modify_coordinates'])
             if sign_in_response[0]:
                 title = "职教家园打卡成功！"
-                content = f"打卡成功，提示信息：" + sign_in_response[1]
+                content = f"{user['name']}，打卡成功！\n提示信息：" + sign_in_response[1]
                 if config['day_report'] or config['week_report'] or config['month_report']:
                     content = content + f"\n实习报告提交：{report_handler(user, uid, token)}" + f"\n剩余时间：{endday}天"
-                    push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
-                                                            pushdata=user['pushdata'], title=title, content=content, )
             else:
-                content = f"打卡失败，错误信息：" + sign_in_response[1] + f"\n剩余时间：{endday}天"
-                push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
-                                                        pushdata=user['pushdata'], title=title, content=content)
+                content = f"{user['name']}，打卡失败！\n错误信息：" + sign_in_response[1] + f"\n剩余时间：{endday}天"
         else:
-            content = f"登录失败，错误信息：" + '获取uid和token失败！' + f"\n剩余时间：{endday}天"
-            push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
-                                                    title=title, content=content)
-        logging.info(f'{login_feedback, content, push_feedback}')
+            content = f"{user['name']}，登录失败！\n错误信息：" + '获取uid和token失败！' + f"\n剩余时间：{endday}天"
+        push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"],
+                                                pushdata=user['pushdata'], title=title, content=content)
         return login_feedback, content, push_feedback
     except Exception as e:
-        content = f"{e}" + f"\n剩余时间：{endday}天"
+        content = f"{user['name']}，{e}" + f"\n剩余时间：{endday}天"
         push_feedback = MessagePush.pushMessage(addinfo=False, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
-        logging.info(f'{login_feedback, content, push_feedback}')
         return login_feedback, content, push_feedback
 
 
@@ -385,6 +388,9 @@ def report_handler(user, uid, token):
     speciality = get_user_info(uid, user['deviceId'], token)[2]
     job = get_job_data(uid, user['deviceId'], token)[1]
     content = ''
+    if get_holiday_detail(datetime.datetime.now().date()):
+        content = '今日为法定节假日！暂未提交报告！'
+        return content
     if config['day_report']:
         first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
         logging.info(first_prompt)
@@ -410,7 +416,7 @@ def report_handler(user, uid, token):
             logging.warning(e)
             logging.info(this_day_result_content)
     if config['week_report']:
-        if datetime.datetime.weekday(datetime.datetime.now()) == 2:
+        if datetime.datetime.weekday(datetime.datetime.now()) == 0:
             first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
             logging.info(first_prompt)
             first_gpt = gpt_handler(first_prompt)
@@ -437,7 +443,7 @@ def report_handler(user, uid, token):
                 logging.warning(e)
                 logging.info(this_week_result_content)
     if config['month_report']:
-        if datetime.datetime.now().strftime("%d") == "30":
+        if datetime.datetime.now().strftime("%d") == "25":
             first_prompt = prompt_handler(step='first', speciality=speciality, job=job)
             logging.info(first_prompt)
             first_gpt = gpt_handler(first_prompt)

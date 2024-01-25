@@ -20,6 +20,7 @@ def DingTalkRebot(DingSecret, DingToken, title, content):
     message = {"msgtype": "text", "text": {"content": title + f"\n{content}"}}
     post = requests.post(rebot_address + ding_token + "&timestamp=" + timestamp + "&sign=" + sign, json=message,
                          headers=head)
+    logging.info(post.text)
     if post.json()["errcode"] == 0:
         return "成功推送至DingDing！"
     else:
@@ -34,6 +35,7 @@ def PushPlus(token, title, content):
     body = json.dumps(data).encode(encoding='utf-8')
     headers = {'Content-Type': 'application/json'}
     post = requests.post(url, data=body, headers=headers)
+    logging.info(post.text)
     if post.json()["code"] == 200:
         return "成功推送至PushPlus！"
     else:
@@ -46,6 +48,7 @@ def ServerTurbo(token, title, content):
     url = "https://sctapi.ftqq.com/"
     head = {"Content-type": "application/json"}
     get = requests.post(url + "/" + token + ".send?title=" + title + "&desp=" + content, headers=head)
+    logging.info(get.text)
     if get.json()["code"] == 0:
         return "成功推送至Server酱！"
     else:

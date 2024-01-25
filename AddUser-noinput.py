@@ -122,7 +122,7 @@ if __name__ == '__main__':
         account_data = get_account_data(phone, password, device)
         uid = account_data[1]
         token = account_data[2]
-        name = json.loads(get_user_info(uid, device, token)['data']['uname'][1])
+        name = get_user_info(uid, device, token)[1]
     now_localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if pushmode == "1":
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,

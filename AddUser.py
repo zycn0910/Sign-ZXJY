@@ -2,7 +2,6 @@ import string
 import urllib
 
 from process import *
-from utils import MessagePush
 
 
 def write_user(filename, newdata):
@@ -120,7 +119,7 @@ if __name__ == '__main__':
         account_data = get_account_data(phone, password, device)
         uid = account_data[1]
         token = account_data[2]
-        name = json.loads(get_user_info(uid, device, token)['data']['uname'][1])
+        name = get_user_info(uid, device, token)[1]
     # 随机定位（经纬度最后一位随机）
     modify_coordinates = input("开启随机最后一位坐标y or n（默认y）：")
     if modify_coordinates == "y":
@@ -173,7 +172,8 @@ if __name__ == '__main__':
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
                                  device=device, modify_coordinates=modify_coordinates, address=address,
                                  pushmode=pushmode,
-                                 email_username=email_username, email_password=email_password, email_address=email_address, email_port=email_port, email_receiver=email_receiver)
+                                 email_username=email_username, email_password=email_password,
+                                 email_address=email_address, email_port=email_port, email_receiver=email_receiver)
         pushmode = "邮件推送"
     else:
         userdata = checkUserData(filename=filename, enabled=enabled, day=day, name=name, phone=phone, password=password,
