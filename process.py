@@ -244,7 +244,7 @@ def login_and_sign_in(user, endday):
         return login_feedback, content, push_feedback
     if config['holiday_pass']:
         holiday_data = get_holiday_detail(datetime.datetime.now())
-        if holiday_data:
+        if holiday_data[0]:
             if holiday_data[1] is None:
                 content = f'{user["name"]}，今天是法定节假日！无需打卡！\n剩余时间：{endday}天'
             else:
