@@ -80,7 +80,7 @@ def generate_headers(sign, phonetype, token):
     else:
         os = "android"
         Accept = "*/*"
-        Version = "".join(re.findall('v\d+\.\d+\.\d+',
+        Version = "".join(re.findall('v\\d+\\.\\d+\\.\\d+',
                                      requests.get(
                                          'https://r.app.xiaomi.com/details?id=com.wyl.exam').text,
                                      re.S)).replace('v', '')
