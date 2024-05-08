@@ -83,10 +83,10 @@ key：秘钥
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
 chinese_calendar==1.9.0
-openai==1.12.0
+openai==1.26.0
 PyYAML==6.0.1
 Requests==2.31.0
-tqdm==4.66.1
+tqdm==4.66.2
 ```
 
 3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。

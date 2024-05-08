@@ -10,7 +10,7 @@ import time
 import requests
 import yaml
 
-from chinese_calendar import get_holiday_detail
+from chinese_calendar import get_holiday_detail, is_workday
 from openai import OpenAI
 from utils import MessagePush
 
@@ -65,30 +65,26 @@ def calculate_hmac_sha256(secret_key, message):
 
 # 请求头生成
 def generate_headers(sign, phonetype, token):
+    Accept = "*/*"
+    Accept_Language = 'zh-Hans-CN;q=1'
+    Content_Type = 'application/json; charset=UTF-8'
+    Connection = "keep-alive"
     if "iph" in phonetype.lower():
         os = "ios"
-        Accept = "*/*"
         Version = "".join(re.findall('new__latest__version">(.*?)</p>',
                                      requests.get(
                                          'https://apps.apple.com/us/app/%E8%81%8C%E6%A0%A1%E5%AE%B6%E5%9B%AD/id1606842290').text,
                                      re.S)).replace('Version ', '')
         Accept_Encoding = 'gzip, deflate, br'
-        Accept_Language = 'zh-Hans-CN;q=1'
-        Content_Type = 'application/json;charset=UTF-8'
         User_Agent = "Internship/1.4.3 (iPhone; iOS 16.7.2; Scale/3.00)"
-        Connection = "keep-alive"
     else:
         os = "android"
-        Accept = "*/*"
         Version = "".join(re.findall('v\\d+\\.\\d+\\.\\d+',
                                      requests.get(
                                          'https://r.app.xiaomi.com/details?id=com.wyl.exam').text,
                                      re.S)).replace('v', '')
         Accept_Encoding = 'gzip'
-        Accept_Language = 'zh-Hans-CN;q=1'
-        Content_Type = 'application/json; charset=UTF-8'
         User_Agent = "okhttp/3.14.9"
-        Connection = "keep-alive"
     data = {
         'Accept': Accept,
         'timestamp': str(int(time.time() * 1000)),
@@ -243,8 +239,8 @@ def login_and_sign_in(user, endday):
                                                 title=title, content=content)
         return login_feedback, content, push_feedback
     if config['holiday_pass']:
-        holiday_data = get_holiday_detail(datetime.datetime.now())
-        if holiday_data[0]:
+        if not is_workday(datetime.datetime.now()):
+            holiday_data = get_holiday_detail(datetime.datetime.now())
             if holiday_data[1] is None:
                 content = f'{user["name"]}，今天是法定节假日！无需打卡！\n剩余时间：{endday}天'
             else:
@@ -388,7 +384,7 @@ def report_handler(user, uid, token):
     speciality = get_user_info(uid, user['deviceId'], token)[2]
     job = get_job_data(uid, user['deviceId'], token)[1]
     content = ''
-    if get_holiday_detail(datetime.datetime.now().date()):
+    if not is_workday(datetime.datetime.now().date()):
         content = '今日为法定节假日！暂未提交报告！'
         return content
     if config['day_report']:
