@@ -13,7 +13,7 @@
 > 
 > 本项目基于[GPL3.0开源协议](https://www.gnu.org/licenses/gpl-3.0.zh-cn.html)。
 > 
-> 项目内仅有一处版权信息，详情在`main.py`51行。
+> 项目内仅有一处版权信息，详情在`main.py`50行。
 > 
 > 仅供学习使用，请于下载后24小时内删除项目所有内容。
 > 
@@ -72,11 +72,10 @@ key：秘钥
 
 ### 青龙面板
 
-1、面板配置文件20行取消代理，新建定时任务，名称随意，定时随意，运行一次。
+1、面板配置文件19或20行取消代理，新建定时任务，名称随意，定时随意，运行一次。
 ```
-拉库命令：ql repo https://kkgithub.com/zycn0910/Sign-ZXJY.git
+拉库命令：ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git
 ```
-
 
 2、在脚本管理zycn0910_Sign-ZXJY文件夹里手动添加`day_report.json`、`week_report.json`、`month_report.json`三个json文件。
 
