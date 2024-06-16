@@ -106,7 +106,7 @@ def generate_headers(sign, phonetype, token):
 
 # 获取登录api_token
 def get_Apitoken():
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/getApitoken.ashx"
     headers = {
         'content-type': 'application/json;charset=UTF-8',
         'User-Agent': 'Internship/1.3.8 (iPhone; iOS 16.6; Scale/3.00)'
@@ -161,7 +161,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, t
     }
     sign = calculate_sign(data, token)
     header = generate_headers(sign, phonetype, token)
-    url = 'https://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
+    url = 'https://sxbaapp.dxtxl.com/api/clockindaily20220827.ashx'
     response_text = json.loads(send_request(url=url, method='POST', headers=header, data=data))
     logging.info(response_text)
     if response_text['code'] == 1001:
@@ -172,7 +172,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, t
 
 # 获取ZXJY用户信息
 def get_user_info(uid, deviceId, token):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/relog.ashx"
     data = {
         "dtype": 2,
         "uid": uid
@@ -189,7 +189,7 @@ def get_user_info(uid, deviceId, token):
 
 # 获取ZXJY用户数据
 def get_account_data(phone, password, deviceId):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/relog.ashx"
     data = {
         "dtype": 6,
         "phone": phone,
@@ -214,7 +214,7 @@ def get_job_data(uid, deviceId, token):
     }
     sign = calculate_sign(data, token)
     headers = generate_headers(sign, deviceId, token)
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/shixi_student_check.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/shixi_student_check.ashx"
     job_data = json.loads(send_request(url, 'POST', headers, data))
     logging.info(job_data)
     if job_data['code'] == 1001:
@@ -320,7 +320,7 @@ def gpt_handler(prompt):
 
 # 提交日报
 def day_Report(time, user, uid, token, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
@@ -339,7 +339,7 @@ def day_Report(time, user, uid, token, summary, record, project):
 
 # 提交周报
 def week_Report(time, user, uid, token, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
@@ -360,7 +360,7 @@ def week_Report(time, user, uid, token, summary, record, project):
 
 # 提交月报
 def month_Report(time, user, uid, token, summary, record, project):
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/ReportHandler.ashx"
+    url = "https://sxbaapp.dxtxl.com/api/ReportHandler.ashx"
     data = {
         "address": user['address'],
         "uid": uid,
