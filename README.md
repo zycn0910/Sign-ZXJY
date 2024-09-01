@@ -23,8 +23,15 @@
 > 
 > 如基于或参考此项目进行二次开发，请注明原作者并使用GPL3.0许可证。
 
-### 5.16更新日志
-1、节假日判断取[国务院调休数据](https://www.gov.cn/zhengce/content/202310/content_6911527.htm)。
+## 更新日志
+
+### 2024.9.1
+1、重构openai生成实习报告模块。
+
+2、添加配置文件详解（见本页尾）。
+<hr>
+
+[点击查看历史更新](/UpdateLog.md)
 
 ## 介绍
 1、增加多种推送模式，例如Pushplus、DingDingWebHook机器人、Server_Turbo推送、自建Smtp邮件推送（邮件推送支持一对多、一对一）。
@@ -77,24 +84,90 @@ key：秘钥
 拉库命令：ql repo https://gitclone.com/github.com/zycn0910/Sign-ZXJY.git
 ```
 
-2、在脚本管理zycn0910_Sign-ZXJY文件夹里手动添加`day_report.json`、`week_report.json`、`month_report.json`三个json文件。
-
 2、打开依赖管理，选择python，新建依赖，勾选自动拆分，复制下面的依赖名称。
 ```
 chinese_calendar==1.9.0
-openai==1.26.0
+openai==1.43.0
 PyYAML==6.0.1
-Requests==2.31.0
+PyYAML==6.0.2
+Requests==2.32.3
 tqdm==4.66.2
 ```
 
-3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个，暂停AddUser-noinput的定时任务。
+3、删除拉库命令和拉库时自动添加的多余定时任务，只保留Main，AddUser-noinput两个定时任务。
 
-4、测试运行Main。
+4、编辑AddUser-noinput.py文件可进行添加用户操作
+
+5、测试运行Main。
 
 ## 推送模块说明
 
 >详情可见项目：[长目飞耳](https://github.com/zycn0910/Message-Push)。
+
+## config.py详解
+
+```
+# 全局推送配置数据（如果单独用户设置推送模式了，但未设置推送信息时生效）
+push-data:
+  # 1 钉钉机器人
+  DingDing:
+    Secret: ""
+    Token: ""
+  # 2 PushPlus
+  PushPlus:
+    Token: ""
+  # 3 Server酱
+  Server_Turbo:
+    Token: ""
+  # 4 邮件、用户侧必须配置接收地址
+  Email:
+    email_username: "123456@xxx.xxx"
+    email_password: ""
+    email_address: ""
+    email_port: ""
+
+# 程序运行时间（满足此时间才推送信息，否则本地输出），早上7点运行才会推送，其余时间运行不推送填07，留空为无论何时运行都推送
+time: "07"
+
+# 每位用户中间间隔随机时间（秒）
+range_time: "5-15"
+
+# 腾讯地图api密钥，获取地址经纬度需要（此为网上爬取）
+api_token: "UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC"
+
+# 实习报告（打卡成功后才会提交）
+# 使用GPT官方库，可使用支持官方库的api地址和key
+gpt_data:
+  # 指定GPT-API接口，留空使用官方url（需梯子），你可填写国内镜像站，默认chatanywhere：https://api.chatanywhere.tech/v1
+  url: https://api.chatanywhere.tech/v1
+  # key，会用你就知道填什么，请确保有足够的余额，如果只有一个账号使用，可以去https://github.com/chatanywhere/GPT_API_free申请内测免费key
+  key: sk-xxxxxxxxxxxxx
+# 是否开启日报，每日提交
+day_report: False
+# 是否开启周报，每周日提交
+week_report: False
+# 是否开启月报，每月30号提交
+month_report: False
+
+# 是否开启节假日判断（如果当天为中国法定节假日，则跳过打卡，默认不开启，每天打卡）
+holiday_pass: False
+
+# 日志，仅支持smtp邮件推送，推送的为简化版日志，详细日志见log内具体文件
+log_report: False（是否生成本地日志文件，False为不生成）
+（是否设置日志发送至某一邮箱，留空为不发送）
+log_report_data:
+    # smtp用户名
+    "emailUsername": ""
+    # smtp密码
+    "emailPassword": ""
+    # smtp服务器地址
+    "emailAddress": ""
+    # smtp端口
+    "emailPort": ""
+    # 接收日志邮箱
+    "Receiver": ""
+
+```
 
 ## user.json结构说明
 

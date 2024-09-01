@@ -1,5 +1,6 @@
 chinese_calendar==1.9.0
-openai==1.26.0
+openai==1.43.0
 PyYAML==6.0.1
-Requests==2.31.0
+PyYAML==6.0.2
+Requests==2.32.3
 tqdm==4.66.2

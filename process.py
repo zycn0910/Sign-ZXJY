@@ -234,7 +234,7 @@ def login_and_sign_in(user, endday):
     if endday >= 0:
         pass
     else:
-        content = f"您已到期！"
+        content = f"您已完成程序内设置的打卡周期！"
         push_feedback = MessagePush.pushMessage(addinfo=True, pushmode=user["pushmode"], pushdata=user['pushdata'],
                                                 title=title, content=content)
         return login_feedback, content, push_feedback
@@ -306,11 +306,7 @@ def gpt_handler(prompt):
         )
     messages = [{"role": "user", "content": prompt}]
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
-            messages=messages,
-            temperature=0.7,
-        )
+        response = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
         logging.info(response)
         return True, response.choices[0].message.content
     except Exception as e:
