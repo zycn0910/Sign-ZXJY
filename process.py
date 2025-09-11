@@ -194,6 +194,7 @@ def get_account_data(phone, password, deviceId):
         "dtype": 6,
         "phone": phone,
         'password': hashlib.md5(password.encode()).hexdigest(),
+        'dToken': 0
     }
     token = get_Apitoken()[1]
     sign = calculate_sign(data, token)
